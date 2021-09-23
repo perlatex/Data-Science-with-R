@@ -1,0 +1,66 @@
+---
+title: "dplyr基础"
+author: "王小二"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    code_folding: show
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE, 
+                      message = FALSE
+                      )
+```
+
+
+
+
+
+# 加载宏包
+
+```{r}
+library(tidyverse)
+```
+
+
+## 数据
+
+```{r}
+kidiq <- read_rds("./data/kidiq.RDS") 
+kidiq
+```
+
+
+- kid_score : 小孩考试分数
+- mom_hs    : 母亲是否完成高中
+- mom_iq    : 母亲IQ值
+- mom_age   : 母亲年龄
+
+
+# 作业
+
+- 说出数据框中每一列的变量类型
+
+- 统计考试的平均成绩
+
+- 统计母亲完成高中的比例
+
+- 构建新的一列`index`，其中 $index = mom_iq/mom_age$
+
+- 中心化 mom_iq （提示：中心化 = mom_iq值 - 全部mom_iq的均值，`mom_iq - mean(mom_iq)`）
+
+- 按mom_hs分组，计算 mom_iq 均值、kid_score的均值以及mom_age的最大值
+
+
+
+
