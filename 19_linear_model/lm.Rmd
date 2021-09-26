@@ -1,0 +1,303 @@
+---
+title: "线性回归"
+author: "王小二"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+
+线性模型是数据分析中最常用的一种分析方法。最基础的往往最深刻。
+
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+```
+
+## 从一个案例开始
+
+这是一份1994年收集1379个对象关于收入、身高、教育水平等信息的数据集。数据在课件首页提供了下载链接。
+
+首先，我们下载后导入数据
+```{r message = FALSE, warning = FALSE}
+wages <- read_csv("./demo_data/wages.csv")
+
+wages %>%
+  head()
+```
+
+
+
+
+### 缺失值检查
+
+一般情况下，拿到一份数据，首先要了解数据，知道每个变量的含义，
+
+```{r}
+wages %>% colnames()
+```
+
+同时检查数据是否有缺失值，这点很重要。在R中 NA（not available，不可用）表示缺失值, 比如可以这样检查是否有缺失值。
+
+
+```{r}
+# 如何检查数据是否有缺失值？
+wages %>%
+  summarise(
+    earn_na = sum(is.na(earn)),
+    height_na = sum(is.na(height)),
+    sex_na = sum(is.na(sex)),
+    race_na = sum(is.na(race)),
+    ed_na = sum(is.na(ed)),
+    age_na = sum(is.na(age))
+  )
+```
+
+
+程序员都是偷懒的，所以也可以写的简便一点。大家在学习的过程中，也会慢慢的发现tidyverse的函数很贴心，很周到。
+```{r}
+wages %>%
+  summarise(
+    across(everything(), ~ sum(is.na(.)))
+  )
+```
+
+当然，也可以用`purrr::map()`的方法。这部分我会在后面的章节中逐步介绍。
+```{r}
+wages %>%
+  map_df(~ sum(is.na(.)))
+```
+
+
+
+###  变量简单统计
+
+然后探索下每个变量的分布。比如调研数据中男女的数量分别是多少？
+```{r}
+wages %>% count(sex)
+```
+
+男女这两组的身高均值分别是多少？收入的均值分别是多少？
+```{r}
+wages %>%
+  group_by(sex) %>%
+  summarise(
+    n = n(),
+    mean_height = mean(height),
+    mean_earn = mean(earn)
+  )
+```
+
+也有可以用可视化的方法，呈现男女收入的分布情况
+```{r}
+wages %>%
+  ggplot(aes(x = earn, color = sex)) +
+  geom_density()
+```
+
+大家可以自行探索其他变量的情况。现在提出几个问题，希望大家带着这些问题去探索：
+
+1. 长的越高的人挣钱越多？
+
+2. 是否男性就比女性挣的多？
+
+3. 影响收入最大的变量是哪个？
+  
+4. 怎么判定我们建立的模型是不是很好？
+
+
+
+## 线性回归模型
+
+**长的越高的人挣钱越多？**
+
+要回答这个问题，我们先介绍线性模型。顾名思义，就是认为$x$和$y$之间有线性关系，数学上可以写为
+
+$$
+\begin{aligned}
+y &= \alpha + \beta x + \epsilon \\
+\epsilon &\in \text{Normal}(\mu, \sigma) 
+\end{aligned}
+$$
+
+$\epsilon$ 代表误差项，它与$x$ 无关，且服从正态分布。
+建立线性模型，就是要估计这里的系数$\hat\alpha$和$\hat\beta$，即截距项和斜率项。常用的方法是最小二乘法（ordinary least squares (OLS) regression）：
+就是我们估算的$\hat\alpha$和$\hat\beta$, 要使得残差的平方和最小，即$\sum_i(y_i - \hat y_i)^2$或者叫$\sum_i \epsilon_i^2$最小。
+
+
+```{r out.width = '85%', echo = FALSE}
+knitr::include_graphics("images/best_fit.png")
+```
+
+
+当然，数据量很大，手算是不现实的，我们借助R语言代码吧
+
+
+## 使用`lm()` 函数
+
+用R语言代码(建议大家先`?lm`看看帮助文档)，
+
+`lm`参数很多, 但很多我们都用不上，所以我们只关注其中重要的两个参数
+
+```{r, eval = FALSE}
+lm(formula = y ~ x, data)
+```
+
+`lm(y ~ x, data)` 是最常用的线性模型函数(lm是linear model的缩写)。参数解释说明
+
+
+```{block, type="danger"}
+* formula：指定回归模型的公式，对于简单的线性回归模型`y ~ x`. 
+* ~ 符号：代表“预测”，可以读做“y由x预测”。有些学科不同的表述，比如下面都是可以的
+  - `response ~ explanatory`  
+  - `dependent ~ independent` 
+  - `outcome ~ predictors`
+* data：代表数据框，数据框包含了响应变量和独立变量
+```
+
+
+
+在运行`lm()`之前，先画出身高和收入的散点图(记在我们想干什么，寻找身高和收入的关系)
+
+```{r}
+wages %>%
+  ggplot(aes(x = height, y = earn)) +
+  geom_point()
+```
+
+
+等不及了，就运行代码吧
+```{r}
+mod1 <- lm(
+  formula = earn ~ height,
+  data = wages
+)
+```
+
+
+这里我们将`earn`作为响应变量，`height`为预测变量。`lm()`返回赋值给`mod1`. `mod1`现在是个什么东东呢？ mod1是一个叫`lm object`或者叫`类`的东西，
+
+```{r}
+names(mod1)
+```
+
+我们打印看看，会发生什么
+
+```{r}
+print(mod1)
+```
+
+
+这里有两部分信息。首先第一部分是我们建立的模型；第二部分是R给出了截距（$\alpha = -126532$）和斜率（$\beta = 2387$）. 也就是说我们建立的线性回归模型是
+$$
+\hat y = -126532 + 2387 \; x 
+$$
+
+查看详细信息
+```{r}
+summary(mod1)
+```
+
+查看拟合值
+```{r}
+# predict(mod1) # predictions at original x values
+wages %>% modelr::add_predictions(mod1)
+```
+
+查看残差值
+```{r}
+# resid(mod1)
+wages %>%
+  modelr::add_predictions(mod1) %>%
+  modelr::add_residuals(mod1)
+```
+
+
+
+## 模型的解释
+
+**建立一个`lm`模型是简单的，然而最重要的是，我们能解释这个模型。**
+
+`mod1`的解释：
+
+- 对于斜率$\beta = 2387$意味着，当一个人的身高是68英寸时，他的预期收入$earn = -126532 + 2387 \times 68= 35806$ 美元， 换个方式说，身高$height$每增加一个1英寸, 收入$earn$会增加2387美元。
+
+- 对于截距$\alpha = -126532$，即当身高为0时，期望的收入值-126532。呵呵，人的身高不可能为0，所以这是一种极端的理论情况，现实不可能发生。
+
+
+```{r}
+wages %>%
+  ggplot(aes(x = height, y = earn)) +
+  geom_point(alpha = 0.25) +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+
+
+## 多元线性回归
+
+刚才讨论的单个预测变量`height`，现在我们增加一个预测变量`ed`，稍微扩展一下我们的一元线性模型，就是多元回归模型
+
+$$
+\begin{aligned}
+earn &= \alpha + \beta_1 \text{height} + \beta_2 \text{ed} +\epsilon \\
+\end{aligned}
+$$
+
+R语言代码实现也很简单，只需要把变量`ed`增加在公式的右边
+```{r}
+mod2 <- lm(earn ~ height + ed, data = wages)
+```
+同样，我们打印`mod2`看看
+
+```{r}
+mod2
+```
+
+大家试着解释下`mod2`. 
+
+
+
+
+
+
+## 更多模型
+
+```{r, eval=FALSE}
+lm(earn ~ sex, data = wages)
+lm(earn ~ ed, data = wages)
+lm(earn ~ age, data = wages)
+
+lm(earn ~ height + sex, data = wages)
+lm(earn ~ height + ed, data = wages)
+lm(earn ~ height + age, data = wages)
+lm(earn ~ height + race, data = wages)
+
+
+lm(earn ~ height + sex + ed, data = wages)
+lm(earn ~ height + sex + age, data = wages)
+lm(earn ~ height + sex + race, data = wages)
+lm(earn ~ height + ed + age, data = wages)
+lm(earn ~ height + ed + race, data = wages)
+lm(earn ~ height + age + race, data = wages)
+
+lm(earn ~ height + sex + ed + age, data = wages)
+lm(earn ~ height + sex + ed + race, data = wages)
+lm(earn ~ height + sex + age + race, data = wages)
+lm(earn ~ height + ed + age + race, data = wages)
+lm(earn ~ sex + ed + age + race, data = wages)
+
+lm(earn ~ height + sex + ed + age + race, data = wages)
+```
+
+
+
+
+
+
