@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2021.8.13)  23 SEP 2021 12:30
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2021.8.13)  27 SEP 2021 20:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1560,15 +1560,8 @@ Overfull \vbox (10.11707pt too high) detected at line 751
 [31
 
 ]
-\openout4 = `02_basicR.vrb'.
-
-(./02_basicR.vrb
-File: images/list.jpg Graphic file (type bmp)
-<images/list.jpg>
-)
-Overfull \vbox (6.49374pt too high) detected at line 758
- []
-
+File: images/list_trian.png Graphic file (type bmp)
+<images/list_trian.png>
 [32
 
 ]
@@ -1581,14 +1574,14 @@ Overfull \vbox (37.29489pt too high) detected at line 780
 [33
 
 ]
-\openout4 = `02_basicR.vrb'.
-
-(./02_basicR.vrb) [34
-
-]
 File: images/create_list.jpg Graphic file (type bmp)
 <images/create_list.jpg>
-[35
+[34
+
+]
+\openout4 = `02_basicR.vrb'.
+
+(./02_basicR.vrb) [35
 
 ]
 \openout4 = `02_basicR.vrb'.
@@ -1598,13 +1591,17 @@ File: images/create_list.jpg Graphic file (type bmp)
 ]
 File: images/dataframe.jpg Graphic file (type bmp)
 <images/dataframe.jpg>
+
+Overfull \vbox (26.99309pt too high) detected at line 845
+ []
+
 [37
 
 ]
 \openout4 = `02_basicR.vrb'.
 
 (./02_basicR.vrb)
-Overfull \vbox (27.28798pt too high) detected at line 866
+Overfull \vbox (27.28798pt too high) detected at line 867
  []
 
 [38
@@ -1642,10 +1639,10 @@ Package rerunfilecheck Info: File `02_basicR.out' has not changed.
 (rerunfilecheck)             Checksum: 334019455CF13CD53A4A626F2732E358;193.
  ) 
 Here is how much of TeX's memory you used:
- 32628 strings out of 478427
- 694154 string characters out of 5857901
+ 32632 strings out of 478427
+ 694816 string characters out of 5857901
  1018816 words of memory out of 5000000
- 52123 multiletter control sequences out of 15000+600000
+ 52128 multiletter control sequences out of 15000+600000
  417391 words of font info for 90 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  101i,13n,138p,1812b,755s stack positions out of 5000i,500n,10000p,200000b,80000s

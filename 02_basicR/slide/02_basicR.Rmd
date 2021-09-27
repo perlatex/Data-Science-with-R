@@ -451,14 +451,14 @@ matrix(
 
 ## 列表
 
-盒子里装一个向量，有点浪费，我们想往里面装更多的东西，可以使用`list()`函数创建列表
+想象有一个小火车，小火车的每节车厢是独立的，因此每节车厢装的东西可以不一样。这种结构，装载数据的能力很强大，称之为**列表**（list）。
 
-```{r, out.width = '60%', echo = FALSE}
-knitr::include_graphics("images/list.jpg", dpi = 300)
+```{r, out.width = '100%', echo = FALSE}
+knitr::include_graphics("images/list_trian.png")
 ```
 
 
-## 列表
+## 创建列表
 
 ```{r intro-R-31, echo=TRUE, message=TRUE, warning=TRUE}
 list1 <- list(
@@ -469,6 +469,13 @@ list1 <- list(
 list1
 ```
 
+
+
+## 创建列表
+
+```{r, out.width = '100%', echo = FALSE}
+knitr::include_graphics("images/create_list.jpg", dpi = 300)
+```
 
 
 ## 列表
@@ -482,13 +489,6 @@ list1
 
 
 
-
-
-## 列表
-
-```{r, out.width = '100%', echo = FALSE}
-knitr::include_graphics("images/create_list.jpg", dpi = 300)
-```
 
 
 ## 列表的属性
@@ -510,16 +510,16 @@ length(list1)
 
 ## 数据框
 
-如果列表元素的长度都相等，那么就变成了**数据框** (data frame)
+列表是一个小火车，如果每节车厢装的**都是向量而且等长**，那么这种特殊形式的列表就变成了**数据框** (data frame)
 
-```{r, out.width = '100%', echo = FALSE}
+```{r, out.width = '85%', echo = FALSE}
 knitr::include_graphics("images/dataframe.jpg", dpi = 300)
 ```
 
 换句话说，**数据框**是一种特殊的列表
 
 
-## 数据框
+## 创建数据框
 
 我们可以使用 `data.frame()` 函数构建
 
@@ -534,14 +534,13 @@ df
 ```
 
 
-## 数据框
+## 数据框就是我们经常用的excel表格
 
 ```{r, out.width = '100%', echo = FALSE}
 knitr::include_graphics("images/create_dataframe.png", dpi = 300)
 ```
 
-数据框就是我们经常用的excel表格，所以在统计建模和可视化中运用非常广泛。
-
+由于数据框融合了向量、列表和矩阵的特性，所以在数据科学的统计建模和可视化中运用非常广泛。
 
 
 ## 数据框的属性
