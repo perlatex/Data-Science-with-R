@@ -30,16 +30,28 @@ length(x)
 x <- c(3, 4, 5, 6, 7)
 x
 
+### 聚合成新向量
+low      <- c(1, 2, 3)
+high     <- c(4, 5, 6)
+sequence <- c(low, high)
+sequence
 
 
+### 命名向量(named vector)
+x <- c('a' = 5, 'b' = 6, 'c' = 7, 'd' = 8)
+x
+
+
+
+### 单个元素的向量
 x <- 6
 x <- c(6)
 
 
+### 两个基本属性(类型与长度)
 x <- c(3, 4, 5, 6, 7)
 typeof(x)
 length(x)
-
 
 
 
