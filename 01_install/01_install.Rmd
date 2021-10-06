@@ -99,6 +99,18 @@ knitr::include_graphics("images/rstudio-editor1.png")
 knitr::include_graphics(c("images/engine.jpg", "images/dashboard.jpg"))
 ```
 
+<!-- ## 使用 -->
+
+<!--  **Not this**: \hspace{2cm} **Open this**:  -->
+
+<!-- ```{r out.width = '45%', echo = FALSE, fig.align = "left"} -->
+<!-- knitr::include_graphics(c("images/Rlogo.png", "images/rstudio_ball.png")) -->
+<!-- ``` -->
+
+
+
+
+
 ## 必要的配置(可选)
 
 - 宏包安装设置成国内镜像 `Tools > Global options`
@@ -137,6 +149,12 @@ knitr::include_graphics("images/RStudio-Screenshot.png")
 
    - `install.packages("tidyverse")`
 
+
+## 使用宏包
+
+```{r out.width = '100%', echo = FALSE}
+knitr::include_graphics("images/loading_packages.png")
+```
 
 # 测试
 
