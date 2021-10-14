@@ -53,7 +53,7 @@ kidiq
 
 # 作业二
 
-请同学们先安装"babynames"宏包，该宏包包含了若干数据框。
+请同学们先安装"babynames"宏包，该宏包包含了若干数据框。今天，我们会用到其中的"babynames"
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -65,6 +65,7 @@ babynames
 - year = 年份（从1880年到2017年的每一年）
 - sex  = 儿童性别
 - name = 登记使用的姓名
+- n    = 使用该姓名的人数
 - prop = 登记使用该名字的人数占同年登记人数的比例（按性别分）
 
 比如，在1880年名叫"Mary"的女孩有7065个，占当年申请登记的全部女孩的比例是0.07238.
