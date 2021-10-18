@@ -26,28 +26,40 @@ output:
 我们在图中画一个点，那么这个**点**就有（位置，形状，大小，颜色，透明度）等属性，
 这些属性就叫**图形属性**（有时也称之为图形元素或者视觉元素）。
 
-数据可视化的过程，就是我们的**数据**通过**这些视觉上的元素**表示出来，比如点图而言，数值小，点的半径就小一点，数值大的，点就大一点；或者数值大点的颜色就深一点，数值小点的颜色就浅一点。即，数值到图形属性的转换（**映射**）过程。映射是一个数学词汇，这里您可以理解为**一一对应**。
+
+| geom  | x | y | size | color | shape | linetype | alpha | fill | group |
+|-------|---|---|------|-------|-------|----------|-------|------|-------|
+| point |   |   |      |       |       |          |       |      |       |
+| line  |   |   |      |       |       | 　       |       | 　   |       |
+
+
+
+## ggplot2 的图形语法
+
+ggplot2有一套优雅的绘图语法，包名中“gg”是grammar of graphics的简称。
+Hadley Wickham将这套可视化语法诠释为:
+
+
+> 一张统计图形就是从**数据**到几何图形(geometric object，缩写geom)所包含的**图形属性**(aesthetic attribute，缩写aes)的一种映射。
+
+
+通俗解释：就是我们的**数据**通过图形的**视觉元素**表示出来。比如**点**图，如果坐标x值越大，水平方向离原点的位置就越远，数值越小，水平方向离原点的位置就越近。
+**数值大小变成了视觉能感知的东西**。
 
 ```{r, out.width = '100%', echo = FALSE}
 knitr::include_graphics("images/mapping.png")
 ```
 
-
-## ggplot2 的图形语法
-
-ggplot2有一套优雅的绘图语法，包名中“gg”是grammar of graphics的简称。Hadley Wickham将这套可视化语法诠释为:
-
-一张统计图形就是从**数据**到几何图形(geometric object，缩写geom)所包含的**图形属性**(aesthetic attribute，缩写aes)的一种映射。
-
-
+同理，我们希望用**点的大小**代表这个位置上的某个变量（比如，降雨量，产品销量等等），那么变量的数值越小，点的半径就小一点，数值越大，点就可以大一点；或者变量的数值大，点的颜色就深一点，数值小，点的颜色就浅一点。即，数值到图形属性的**映射**过程。映射是一个数学词汇，这里您可以理解为**一一对应**。
 
 
 ## 怎么写代码
 
 语法模板
 
-```{r, out.width = '85%', echo = FALSE}
-knitr::include_graphics("images/ggplot_template.png")
+```{r, eval = FALSE}
+ggplot(data = <DATA>) + 
+   <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
 ```
 
 
