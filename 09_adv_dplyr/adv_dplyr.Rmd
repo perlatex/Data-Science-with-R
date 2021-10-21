@@ -177,12 +177,26 @@ penguins %>%
 ## 寻找企鹅中的胖子
 
 ```{r}
-penguins %>% mutate(
-  body = if_else(body_mass_g > 4200, "you are fat", "you are fine")
+penguins %>% 
+  mutate(
+    body = if_else(body_mass_g > 4200, "you are fat", "you are fine")
 )
 ```
 
+**随堂练习**：用考试成绩的均值代替缺失值
 
+```{r}
+df <- tibble::tribble(
+    ~name,     ~type, ~score,
+  "Alice", "english",    80,
+  "Alice",    "math",    NA,
+    "Bob", "english",    70,
+    "Bob",    "math",    69,
+  "Carol", "english",    NA,
+  "Carol",    "math",    90
+  )
+df
+```
 
 ## 给企鹅身材分类
 
@@ -198,41 +212,78 @@ penguins %>% mutate(
 ```
 
 
-随堂练习：按嘴峰长度分成A, B, C, D 4个等级
+**随堂练习**：按嘴峰长度分成A, B, C, D 4个等级
 
 
 
 ## 每种类型企鹅有多少只？
+知识点：`n()`函数
+
+```{r}
+penguins %>%
+  summarise(
+    n = n()
+  ) 
+```
+
 
 ```{r}
 penguins %>%
   group_by(species) %>%
   summarise(
-    n = n()
-  ) %>%
-  arrange(desc(n))
+    n = n(),
+  )
 ```
-
 
 
 统计某个变量中**各组**出现的次数，可以使用`count()`函数
 
 ```{r}
-penguins %>% count(species, sort = TRUE)
+penguins %>% count(species)
 ```
 
 
 不同性别的企鹅各有多少
 ```{r}
-penguins %>% count(sex)
+penguins %>% count(sex, sort = TRUE)
 ```
 
 
-可以在`count()`里构建新变量，并利用这个新变量完成统计。比如，嘴巴长度大于40的企鹅个数
+可以在`count()`里构建新变量，并利用这个新变量完成统计。
+比如，统计嘴巴长度大于40的企鹅个数
 
 ```{r}
 penguins %>% count(longer_bill = bill_length_mm > 40)
 ```
+
+## 强制转换
+
+矢量中的元素必须是相同的类型，但如果不一样呢，会发生什么？
+这个时候R会**强制转换**成相同的类型。这就涉及数据类型的转换层级
+
+- character > numeric > logical
+- double > integer
+
+比如这里会强制转换成字符串类型
+```{r}
+c("foo", 1, TRUE)
+```
+
+这里会强制转换成数值型
+```{r}
+c(1, TRUE, FALSE)
+```
+
+
+
+**随堂练习**：补全下面代码，求嘴峰长度大于40mm的占比？
+
+
+```{r}
+penguins %>% 
+  mutate(is_bigger40 = bill_length_mm > 40)
+```
+
 
 
 # across()之美
@@ -254,6 +305,9 @@ penguins %>%
     length = mean(bill_depth_mm)
   )
 ```
+
+长度和厚度惊人的相等。我是不是发现新大陆了？
+
 
 
 更安全、更简练的写法，王老师的最爱

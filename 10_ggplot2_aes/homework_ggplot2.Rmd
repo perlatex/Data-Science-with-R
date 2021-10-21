@@ -1,5 +1,5 @@
 ---
-title: "可视化"
+title: "可视化作业"
 author: "王小二"
 date: "`r Sys.Date()`"
 output: 
@@ -22,18 +22,50 @@ output:
 ```{r message = FALSE, warning = FALSE}
 library(tidyverse)
 
-kidiq <- read_rds("./demo_data/kidiq.RDS") 
-kidiq
+diabetes <- read_csv("./demo_data/diabetes.csv")
+diabetes
 ```
+
+
+这是一份关于糖尿病的问卷[数据](http://staff.pubhealth.ku.dk/~tag/Teaching/share/data/Diabetes.html)，
+包括403名受访者的19个变量
+
+| Variable | Explanation (Unit)                                |
+|----------|---------------------------------------------------|
+| id       | subject id                                        |
+| chol     | Total Cholesterol                                 |
+| stab.glu | Stabilized Glucose                                |
+| hdl      | High Density Lipoprotein                          |
+| ratio    | Cholesterol/HDL Ratio                             |
+| glyhb    | Glycosolated Hemoglobin                           |
+| location | a factor with levels (Buckingham,Louisa)          |
+| age      | age (years)                                       |
+| gender   | male or female                                    |
+| height   | height (inches)                                   |
+| weight   | weight (pounds)                                   |
+| frame    | a factor with levels (small,medium,large)         |
+| bp.1s    | First Systolic Blood Pressure                     |
+| bp.1d    | First Diastolic Blood Pressure                    |
+| bp.2s    | Second Diastolic Blood Pressure                   |
+| bp.2d    | Second Diastolic Blood Pressure                   |
+| waist    | waist in inches                                   |
+| hip      | hip in inches                                     |
+| time.ppn | Postprandial Time when Labs were Drawn in minutes |
+
 
 
 # 作业
 
-1. 以mom_iq为横坐标和kid_score为纵坐标，画出散点图，不同的mom_hs用不同的颜色
+- 弄清每个变量的含义。
 
-2. 按mom_hs分组，统计kid_score均值，然后画出kid_score均值的柱状图
+- 计算每个受访者的BMI，BMI的计算公式如下
+$$
+\mathrm{BMI} = \frac{weight(kg)}{height(m)^2}
+$$
 
-3. 在上图柱状图的位置，加上每组均值的分值（提示`geom_text(aes(label = mean_score))`）
+- 画出体重和臀部的散点图，不同性别不同的人颜色。若有趋势，请给出拟合曲线。
 
 
+- 糖化血红蛋白>7.0通常被视为糖尿病的阳性诊断。腰臀比可能是糖尿病和心脏病的预测指标。画出**腰臀比**与**糖化血红蛋白**的散点图，要求糖尿病阳性和阴性用不同的颜色。
 
+- 探索**糖尿病**与**血压**，以及与**肥胖**的关系。
