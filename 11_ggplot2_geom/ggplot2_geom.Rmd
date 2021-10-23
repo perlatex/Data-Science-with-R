@@ -18,7 +18,7 @@ output:
 
 # 复习
 
-## "The Grammar of Graphics": 
+## "The Grammar of Graphics"
 
 > You provide the data, tell 'ggplot2' how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.
 
@@ -29,6 +29,11 @@ ggplot(data = <DATA>, mapping = aes(<MAPPINGS>)) +
   <GEOM_FUNCTION>() +
   <SCALE_FUNCTION>() +
   <THEME_FUNCTION>()
+```
+
+
+```{r, echo = FALSE}
+knitr::include_graphics("./images/how_to_plot.png")
 ```
 
 
@@ -93,7 +98,7 @@ penguins
 
 ## 每个种类有多少企鹅
 
-统计每个种类企鹅的数量，然后画出来
+统计每个种类企鹅的数量，然后画出来。
 
 按照常规的思路，我们一般会先统计，然后喂给ggplot，
 ```{r}
@@ -128,9 +133,43 @@ penguins %>%
 ```
 
 
+**课堂练习**：数量最多的那根柱子，用单独一个颜色
+
+
+## 每个种类嘴峰长度的均值
+
+先求出不同种类企鹅嘴峰长度的均值，然后画图
+
+```{r}
+penguins %>% 
+  group_by(species) %>% 
+  summarise(
+    mean = mean(bill_length_mm)
+  ) %>% 
+  ggplot(aes(x = species, y = mean)) +
+  geom_col(width = 0.5, position = position_dodge(0.6))
+```
+
+
+
+```{r}
+penguins %>% 
+  group_by(species, sex) %>% 
+  summarise(
+    mean = mean(bill_length_mm)
+  ) %>% 
+  ggplot(aes(x = species, y = mean, fill = sex)) +
+  geom_col(width = 0.5, position = position_dodge(0.6))
+```
+
+
+
+
+
 
 ## 嘴峰长度的分布
 
+### 直方图
 嘴峰长度是连续变量，可以用直方图或者密度图
 ```{r}
 penguins %>% 
@@ -138,16 +177,22 @@ penguins %>%
     geom_histogram() 
 ```
 
-
+### 密度图
 ```{r}
 penguins %>% 
     ggplot(aes(x = bill_length_mm)) +
     geom_density()
 ```
 
+
 为什么是两个峰？如何探究背后的原因？种类不同导致的？性别不同导致的？还是所在岛屿不同导致的？
 
-
+### dot plot
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, fill = species)) +
+  geom_dotplot(binwidth = .5) 
+```
 
 
 
@@ -175,6 +220,16 @@ penguins %>%
 ```
 
 
+```{r}
+penguins %>% 
+  ggplot(aes(x = species, y = bill_length_mm, color = species)) +
+  geom_point(
+    position = position_jitter(width = 0.3, height = 0.06),
+    alpha = 0.9,
+    shape = 21,
+    size = 3
+  ) 
+```
 
 ### 箱线图
 可以用箱线图（箱线图可以显示分布的中位数、分位数等）
@@ -205,6 +260,16 @@ penguins %>%
     geom_jitter() 
 ```
 
+```{r}
+penguins %>% 
+  ggplot(aes(x = species, y = bill_length_mm)) +
+  geom_violin() +
+  geom_boxplot(width = .1, fill = "black", outlier.colour = NA) +
+  stat_summary(fun = median, geom = "point", fill = "red", shape = 21, size = 4)
+```
+
+
+
 
 
 ### 山峦图
@@ -224,15 +289,73 @@ penguins %>%
 ```{r}
 penguins %>% 
     ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-    geom_point() +
-    geom_smooth(method = "lm")
+    geom_point() 
 ```
 
-怎么改进这个图？
+```{r}
+penguins %>% 
+    ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+    geom_point(
+      aes(color = species, fill = species), 
+      shape = 21, 
+      alpha = .5, 
+      size = 4
+      ) 
+```
+
+## 增加拟合回归线
+
+### polynomial regression
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  stat_smooth(method = loess, method.args = list(degree = 1))
+```
 
 
 
+### linear regression
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  stat_smooth(method = lm, se = FALSE)
+```
 
+
+
+### logistic regression 
+```{r}
+penguins %>% 
+  mutate(sex = if_else(sex == "male", 1, 0)) %>% 
+  ggplot(aes(x = bill_length_mm, y = sex)) +
+  geom_point(
+    position = position_jitter(width = 0.3, height = 0.06),
+    alpha = 0.4,
+    shape = 21,
+    size = 1.5
+  ) +
+  stat_smooth(method = glm, method.args = list(family = binomial))
+```
+
+## 二维密度分布图
+
+```{r}
+penguins %>%
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  stat_density2d()
+```
+
+
+```{r}
+# Contour lines, with "height" mapped to color
+penguins %>%
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  stat_density2d(aes(colour = stat(level)))
+```
 
 
 ## 分组
@@ -289,6 +412,12 @@ penguins %>%
 ```
 
 
+**课堂练习**：按照各物种分面，画出bill_length_mm的密度分布图
+
+
+
+
+
 
 ## 图层叠加
 
@@ -323,7 +452,6 @@ penguins %>%
 ## 添加文本标签
 
 如何在点的位置**添加**具体数值文本？
-
 
 ```{r}
 penguins %>%
