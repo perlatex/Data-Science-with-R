@@ -23,10 +23,13 @@ output:
 > You provide the data, tell 'ggplot2' how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.
 
 
-```{r, out.width = '70%', echo = FALSE}
-knitr::include_graphics("images/ggplot_template.png")
+```{r, eval = FALSE}
+ggplot(data = <DATA>, mapping = aes(<MAPPINGS>)) +
+  <GEOM_FUNCTION>() +
+  <GEOM_FUNCTION>() +
+  <SCALE_FUNCTION>() +
+  <THEME_FUNCTION>()
 ```
-
 
 
 1. `data`: 数据框data.frame (注意，不支持向量vector和列表list类型）
