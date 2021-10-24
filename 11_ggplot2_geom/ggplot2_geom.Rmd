@@ -32,9 +32,7 @@ ggplot(data = <DATA>, mapping = aes(<MAPPINGS>)) +
 ```
 
 
-```{r, echo = FALSE}
-knitr::include_graphics("./images/how_to_plot.png")
-```
+
 
 
 1. `data`: 数据框data.frame (注意，不支持向量vector和列表list类型）
@@ -58,6 +56,10 @@ knitr::include_graphics("./images/how_to_plot.png")
    - 什么叫映射？就是一种对应关系，一个图形属性对应着数据框的一列。比如sex变量（有`female`和`male`两组）映射到颜色，那么`female`对应一种颜色，而`male`对应成另一种颜色。 数值上的`female`和`male`两种字符，映射成图形上的两种颜色。
      
     
+```{r, echo = FALSE}
+knitr::include_graphics("./images/how_to_plot.png")
+```
+
 
 
 ## 数据类型
@@ -341,6 +343,8 @@ penguins %>%
 
 ## 二维密度分布图
 
+二维版本的stat_density()
+
 ```{r}
 penguins %>%
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
@@ -356,6 +360,8 @@ penguins %>%
   geom_point() +
   stat_density2d(aes(colour = stat(level)))
 ```
+
+
 
 
 ## 分组
@@ -481,7 +487,24 @@ penguins %>%
 每个物种想有各自的椭圆图？
 
 
+## 函数图
 
+```{r}
+ggplot() +
+  geom_function(fun = dnorm, args = list(mean = 0, sd = 0.5)) + 
+  xlim(-2, 2)
+```
+
+
+
+```{r}
+f <- function(x) 0.5*exp(-abs(x))
+
+
+ggplot() + 
+  geom_function(fun = f) +
+  xlim(-5, 5)
+```
 
 
 
