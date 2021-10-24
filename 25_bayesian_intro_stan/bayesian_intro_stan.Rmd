@@ -1,0 +1,50 @@
+---
+title: "Stan入门"
+subtitle: "企鹅的故事"
+author: "王小二"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+
+
+相比于传统的方法来说，[Stan](https://mc-stan.org/)建模具有更好的可操作性、透明性和可解释性。本周开始，我们将开始学习贝叶斯数据分析，希望通过一些案例，让大家了解Stan的强大和价值。根据我有限的学习经验，采用code first 教学。
+
+
+
+## 配置环境
+
+- 安装 [Rtools4.0](https://cran.r-project.org/bin/windows/Rtools/)到`C`盘
+   
+- 添加系统路径(电脑 - 属性 - 高级系统设置 - 环境变量 - 系统变量 - Path) 
+  - `C:\rtools40`
+  - `C:\rtools40\mingw64\bin`
+  - `C:\rtools40\usr\bin`
+  
+- [配置](https://github.com/stan-dev/rstan/wiki/Configuring-C---Toolchain-for-Windows)
+```{r, eval=FALSE}
+writeLines('PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"', con = "~/.Renviron")
+```
+
+- [安装rstan宏包](https://mc-stan.org/r-packages/)
+
+```{r, eval=FALSE}
+remove.packages(c("rstan", "StanHeaders"))
+install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+install.packages(c("tidybayes", "bayesplot"))
+```
+
+- 遇到问题，请参考
+
+  - <https://mc-stan.org/r-packages/>
+  - <https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started>
+
+
