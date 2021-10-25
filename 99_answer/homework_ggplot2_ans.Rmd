@@ -30,28 +30,27 @@ diabetes
 这是一份关于糖尿病的问卷[数据](http://staff.pubhealth.ku.dk/~tag/Teaching/share/data/Diabetes.html)，
 包括403名受访者的19个变量
 
-| Variable | Explanation (Unit)                                |
-|----------|---------------------------------------------------|
-| id       | subject id                                        |
-| chol     | Total Cholesterol                                 |
-| stab.glu | Stabilized Glucose                                |
-| hdl      | High Density Lipoprotein                          |
-| ratio    | Cholesterol/HDL Ratio                             |
-| glyhb    | Glycosolated Hemoglobin                           |
-| location | a factor with levels (Buckingham,Louisa)          |
-| age      | age (years)                                       |
-| gender   | male or female                                    |
-| height   | height (inches)                                   |
-| weight   | weight (pounds)                                   |
-| frame    | a factor with levels (small,medium,large)         |
-| bp.1s    | First Systolic Blood Pressure                     |
-| bp.1d    | First Diastolic Blood Pressure                    |
-| bp.2s    | Second Diastolic Blood Pressure                   |
-| bp.2d    | Second Diastolic Blood Pressure                   |
-| waist    | waist in inches                                   |
-| hip      | hip in inches                                     |
-| time.ppn | Postprandial Time when Labs were Drawn in minutes |
-
+| Variable | Explanation (Unit)                                | 含义                  |
+|----------|---------------------------------------------------|-----------------------|
+| id       | subject id                                        | 标识码                |
+| chol     | Total Cholesterol                                 | 总胆固醇              |
+| stab.glu | Stabilized Glucose                                | 稳定的葡萄糖          |
+| hdl      | High Density Lipoprotein                          | 高密度脂蛋白          |
+| ratio    | Cholesterol/HDL Ratio                             | 胆固醇/高密度脂蛋白比 |
+| glyhb    | Glycosolated Hemoglobin                           | 糖化血红蛋白          |
+| location | a factor with levels (Buckingham,Louisa)          | 地区                  |
+| age      | age (years)                                       | 年龄                  |
+| gender   | male or female                                    | 性别                  |
+| height   | height (inches)                                   | 身高                  |
+| weight   | weight (pounds)                                   | 体重                  |
+| frame    | a factor with levels (small,medium,large)         | 骨架：小中大          |
+| bp.1s    | First Systolic Blood Pressure                     | 第一收缩压            |
+| bp.1d    | First Diastolic Blood Pressure                    | 第一舒张压            |
+| bp.2s    | Second Diastolic Blood Pressure                   | 第二收缩压            |
+| bp.2d    | Second Diastolic Blood Pressure                   | 第二舒张压            |
+| waist    | waist in inches                                   | 腰英寸                |
+| hip      | hip in inches                                     | 臀部英寸              |
+| time.ppn | Postprandial Time when Labs were Drawn in minutes | 餐后时间              |
 
 
 # 作业
@@ -66,47 +65,87 @@ $$
 - 1 inch is equal to 0.0254 meters
 
 ```{r}
-diabetes %>% 
+diabetes %>%
   mutate(bmi = weight * 0.45359237 / (height * 0.0254)^2)
 ```
 
 - 画出体重和臀部的散点图，不同性别不同的人颜色。若有趋势，请给出拟合曲线。
 ```{r}
-diabetes %>% 
+diabetes %>%
   ggplot(aes(x = weight, y = hip, color = gender)) +
   geom_point() +
   geom_smooth()
 ```
 
 
-- 糖化血红蛋白>7.0通常被视为糖尿病的阳性诊断。腰臀比可能是糖尿病和心脏病的预测指标。画出**腰臀比**与**糖化血红蛋白**的散点图，要求糖尿病阳性和阴性用不同的颜色。
+- 糖化血红蛋白> 7.0通常被视为糖尿病的阳性诊断。腰臀比可能是糖尿病和心脏病的预测指标。画出**腰臀比**与**糖化血红蛋白**的散点图，要求糖尿病阳性和阴性用不同的颜色。
 
 
 ```{r}
-diabetes %>% 
-  mutate(waist_hip_ratio = waist / hip) %>% 
+diabetes %>%
+  filter(!is.na(glyhb)) %>%
+  mutate(
+    waist_hip_ratio = waist / hip,
+    is_diabete = if_else(glyhb > 7.0, "yes", "no")
+  ) %>%
   ggplot(aes(x = waist_hip_ratio, y = glyhb)) +
-  geom_point(aes(color = glyhb > 0.7))
-
+  geom_point(aes(color = is_diabete))
 ```
 
 
 - 探索**糖尿病**与**血压**，以及与**肥胖**的关系。
 ```{r}
-diabetes %>% 
+diabetes %>%
+  filter(!is.na(glyhb)) %>%
   ggplot(aes(x = bp.1s, y = glyhb)) +
-  geom_point()
+  geom_point(aes(color = glyhb > 7))
 
-diabetes %>% 
+diabetes %>%
+  filter(!is.na(glyhb)) %>%
   ggplot(aes(x = bp.1d, y = glyhb)) +
-  geom_point()
+  geom_point(aes(color = glyhb > 7))
 ```
 
 
 如果 BMI > 27 视为肥胖
 ```{r}
-diabetes %>% 
-  mutate(bmi = weight * 0.45359237 / (height * 0.0254)^2) %>% 
+diabetes %>%
+  filter(!is.na(glyhb)) %>%
+  mutate(bmi = weight * 0.45359237 / (height * 0.0254)^2) %>%
   ggplot(aes(x = bmi, y = glyhb)) +
   geom_point(aes(color = bmi > 27))
+```
+
+
+范方梅同学的答案不错
+
+```{r}
+d <- diabetes %>%
+  mutate(
+    blood_pressure = case_when(
+      bp.1s > 90 & bp.1s < 139 & bp.1d > 60 & bp.1d < 89 ~ "normal",
+      bp.1s >= 140 | bp.1d >= 90                         ~ "high",
+      bp.1s < 90 | bp.1d < 60                            ~ "low",
+      TRUE                                               ~ "other"
+    ),
+    BMI = (weight * 0.4535) / (height * 0.0254)^2,
+    body = if_else(BMI > 30, "fat", "fit"),
+    is_diabete = if_else(glyhb > 7.0, "yes", "no")
+  )
+d
+```
+
+
+```{r}
+d %>% 
+  ggplot(aes(x = blood_pressure, y = glyhb)) +
+  geom_boxplot() +
+  geom_jitter(aes(color = is_diabete))
+```
+
+```{r}
+d %>% 
+  ggplot(aes(x = body, y = glyhb)) +
+  geom_boxplot() +
+  geom_jitter(aes(color = is_diabete))
 ```
