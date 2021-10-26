@@ -149,7 +149,7 @@ penguins %>%
     mean = mean(bill_length_mm)
   ) %>% 
   ggplot(aes(x = species, y = mean)) +
-  geom_col(width = 0.5, position = position_dodge(0.6))
+  geom_col(width = 0.5)
 ```
 
 

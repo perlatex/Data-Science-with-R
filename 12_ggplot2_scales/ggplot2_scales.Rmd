@@ -43,8 +43,8 @@ penguins %>%
 
 ggplot2中标度函数是由"_"分割的三个部分构成的，比如
 ```{r}
-scale_colour_manual()
 scale_x_continuous()
+scale_colour_manual()
 ```
 
 - scale
@@ -53,7 +53,28 @@ scale_x_continuous()
 
 
 
-每个标度函数内部都有丰富的参数系统
+每个标度函数内部都有丰富的参数系统，
+
+- 位置标度
+```{r}
+scale_x_continuous(
+  name = waiver(),
+  breaks = waiver(),
+  minor_breaks = waiver(),
+  n.breaks = NULL,
+  labels = waiver(),
+  limits = NULL,
+  expand = waiver(),
+  oob = censor,
+  na.value = NA_real_,
+  trans = "identity",
+  guide = waiver(),
+  position = "bottom",
+  sec.axis = waiver()
+)
+```
+
+- 颜色标度
 ```{r}
 scale_colour_manual(
   palette = function(), 
@@ -71,12 +92,12 @@ scale_colour_manual(
 
 - 参数`limits`, 坐标或图例的范围区间。连续性`c(n, m)`，离散型`c("a", "b", "c")`
 
-- 参数`breaks`, 控制显示在坐标轴或者图例上的值（元素）
+- 参数`breaks`, 控制显示在**坐标轴**或者**图例**上的刻度值（刻度位置）
 
 - 参数`labels`, 坐标和图例的间隔标签
   - 一般情况下，内置函数会自动完成
   - 也可人工指定一个字符型向量，与`breaks`提供的字符型向量一一对应
-  - 也可以是函数，把`breaks`提供的字符型向量当做函数的输入
+  - 也可以是**函数**，把`breaks`提供的字符型向量当做函数的输入
   - `NULL`，就是去掉标签
 
 - 参数`values` 指的是（颜色、形状等）视觉属性值, 
@@ -93,14 +114,303 @@ scale_colour_manual(
 
 
 
-# 案例
+# 位置标度
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(color =  species)) 
+```
+
+
+
+
+
+
+## 修改横坐标标题
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  scale_x_continuous(
+    name = "这是我的横坐标"
+  )
+```
+
+## 修改坐标轴范围
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  scale_x_continuous(
+    limits = c(20, 70)
+  )
+```
+
+
+
+## 扩展坐标轴的可视范围
+
+比较下面两张图的区别
+```{r}
+penguins %>% 
+  ggplot(aes(x = species)) +
+  geom_bar()
+
+
+penguins %>% 
+  ggplot(aes(x = species)) +
+  geom_bar() +
+  scale_x_discrete(expand = c(0, 0)) 
+```
+
+- 离散的坐标轴，默认有0.6个单位的扩展
+- 连续的坐标轴，默认有5%的扩展，可以通过`expand = expansion(mult = , add = )` 重新设置
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  scale_x_continuous(
+    expand = expansion(mult = 0, add = 0)
+  )
+```
+
+
+
+
+## 修改横坐标刻度为`c(30, 35, 40, 45, 50, 55, 60)`
+
+可以很实诚地手动完成
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(
+    limits = c(30, 60),
+    breaks = c(30, 35, 40, 45, 50, 55, 60)
+  )
+```
+
+
+也可以偷懒用函数
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(
+    limits = c(30, 60),
+    breaks = scales::breaks_width(width = 5)
+  )
+```
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(
+    limits = c(30, 60),
+    breaks = scales::breaks_width(width = 5, offset = 3)
+  )
+```
+
+
+
+也可以自定义刻度位置^[`breaks`的对应函数，其参数是一个长度为2的向量，代表数据的范围]
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(
+    breaks = function(y) seq(floor(y[1]), ceiling(y[2]), by = 2) 
+  )
+```
+
+
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(
+    breaks = function(y) seq(floor(min(y)), ceiling(max(y)), by = 2) 
+  )
+```
+
+
+
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(
+    limits = c(30, 60),
+    breaks = scales::breaks_pretty(12)
+  )
+```
+
+
+## 修改横坐标标签
+
+让横坐标标签有单位，比如`30mm, 35mm, 40mm, 45mm, 50mm, 55mm, 60mm`
+
+你是一个很实诚地娃
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(
+    limits = c(30, 60),
+    breaks = c(30, 35, 40, 45, 50, 55, 60),
+    labels = c("30mm", "35mm", "40mm", "45mm", "50mm", "55mm", "60mm")
+  )
+```
+
+也可以使用柔软的函数
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(
+    limits = c(30, 60),
+    breaks = seq(from = 30, to = 60, by = 5), 
+    labels = function(x) paste0(x, "_mm")
+  )
+```
+
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  scale_x_continuous(
+    name = "这是我的横坐标",
+    limits = c(30, 60),
+    breaks = scales::breaks_width(width = 5),
+    labels = scales::unit_format(unit = "mm", sep = "")
+    )
+```
+
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  scale_x_continuous(
+    labels = scales::label_percent()
+    ) 
+```
+
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  scale_x_continuous(
+    labels = NULL
+  )
+```
+
+
+
+**课堂练习**：修改纵坐标的标签
+
+```{r, eval=FALSE}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_y_continuous(
+  )
+```
+
+
+## 坐标轴转换
+
+$x$ -> $x^{-1}$
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(trans = "reciprocal")
+```
+
+
+$x$ -> $\log_{10}(x)$
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(
+    trans = "log10"
+  ) 
+```
+
+
+ggplot2也提供了更方便的函数
+
+- 坐标轴取对数 $x$ -> $\log_{10}(x)$
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_log10()
+```
+
+
+
+- 坐标轴取开方 $x$ -> $x^{1/2}$
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_sqrt()
+```
+
+- 让坐标轴反向$x$ -> $-x$
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_reverse()
+```
+
+
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  scale_x_reverse(position = "top")
+```
+
+
+**课堂练习**：能否让y轴也反向且居右？
+
+
+
+
+# 颜色标度
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(color =  species)) 
+```
+
 
 ## 使用自己喜欢的颜色
 
 问题来了，颜色怎么对应各种企鹅呢？
 
 
-默认按照 "Adelie", "Chinstrap", "Gentoo" 字母的顺序 
+我们指定三种颜色，默认按照 "Adelie", "Chinstrap", "Gentoo" 字母的顺序一一对应
  
 ```{r}
 penguins %>% 
@@ -125,11 +435,11 @@ penguins %>%
   )
 ```
 
-
-
 最好是这样，一一对应，清晰明了
 
-```{r}
+
+
+```{r, eval=FALSE}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point(aes(colour = species)) +
@@ -156,6 +466,9 @@ penguins %>%
 ```
 
 
+
+
+
 ## 使用模板配色
 
 
@@ -168,6 +481,19 @@ penguins %>%
   scale_color_brewer(type = "qual", palette = "Set1")
 ```
 
+```{r, fig.width = 5, fig.asp = 0.618}
+penguins %>% 
+  group_by(species) %>% 
+  summarise(
+    mean = mean(bill_length_mm)
+  ) %>% 
+  ggplot(aes(x = species, y = mean)) +
+  geom_col(aes(fill = species)) + 
+  scale_fill_brewer(palette = "Set2", guide = NULL)
+```
+
+
+
 - 我比较喜欢使用[colorspace](http://colorspace.r-forge.r-project.org/articles/colorspace.html)模板的配色
 
 ```{r}
@@ -176,70 +502,41 @@ colorspace::qualitative_hcl(n = 3, palette = "cold") %>%
 ```
 
 
+
 ```{r}
+library(colorspace)
 penguins %>% 
   ggplot(aes(bill_length_mm, fill = species)) +
   geom_density(alpha = 0.6) +
-  colorspace::scale_fill_discrete_qualitative(palette = "cold")
+  scale_fill_discrete_qualitative(palette = "cold")
 ```
 
-
-
-
-
-## 修改坐标轴标签
-
+## 连续的颜色
 ```{r}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_point(aes(colour = species)) +
-  scale_x_continuous(
-    name = "这是我的横坐标",
-    limits = c(30, 60),
-    breaks = c(30, 40, 50, 60),
-    labels = c("30mm", "40mm", "50mm", "60mm")
-    )
+  geom_point(aes(color = body_mass_g))
 ```
-
-
-
-还可以偷懒
-```{r}
-penguins %>% 
-  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_point(aes(colour = species)) +
-  scale_x_continuous(
-    name = "这是我的横坐标",
-    limits = c(30, 60),
-    breaks = seq(30, 60, 10),
-    labels = scales::unit_format(unit = "mm", sep = "")
-    )
-```
-
-
-
-## 让坐标轴反向
-```{r}
-penguins %>% 
-  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_point(aes(colour = species)) +
-  scale_x_reverse()
-```
-
 
 
 
 ```{r}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_point(aes(colour = species)) +
-  scale_x_reverse(position = "top")
+  geom_point(aes(color = body_mass_g)) +
+  scale_color_gradient(low = "grey", high = "brown")
 ```
 
 
-- 能否让y轴也反向且居右？
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(color = body_mass_g)) +
+  scale_color_continuous_sequential(palette = "Red-Yellow")
+```
 
 
+# 其它标度
 
 ## 控制图中点的大小变化范围
 
