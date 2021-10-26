@@ -92,6 +92,39 @@ Internet                       |       `download.file()`
 "D:/images/b.jpg"
 
 
+## 文件路径
+
+```{r, out.width='55%', fig.align='center', echo=FALSE}
+knitr::include_graphics("./images/demo1.png")
+```
+
+## 文件路径
+
+```{r, out.width='55%', fig.align='center', echo=FALSE}
+knitr::include_graphics("./images/demo1.png")
+```
+
+```{r, eval=FALSE}
+d <- read_csv("./Data/data1.csv")
+```
+
+## 文件路径
+
+```{r, out.width='55%', fig.align='center', echo=FALSE}
+knitr::include_graphics("./images/demo2.png")
+```
+
+
+## 文件路径
+
+```{r, out.width='55%', fig.align='center', echo=FALSE}
+knitr::include_graphics("./images/demo2.png")
+```
+
+```{r, eval=FALSE}
+d <- read_csv("../Data/data1.csv")
+```
+
 
 
 ## 范例 

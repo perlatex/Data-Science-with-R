@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2021.8.13)  23 SEP 2021 13:28
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2021.8.13)  26 OCT 2021 10:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1453,24 +1453,54 @@ Overfull \vbox (0.62106pt too high) detected at line 254
 [7
 
 ]
-\openout4 = `07_readr.vrb'.
-
-(./07_readr.vrb)
-Overfull \vbox (5.68507pt too high) detected at line 274
- []
-
+File: ./images/demo1.png Graphic file (type bmp)
+<./images/demo1.png>
 [8
 
 ]
 \openout4 = `07_readr.vrb'.
 
-(./07_readr.vrb)
-Overfull \vbox (5.61307pt too high) detected at line 294
+(./07_readr.vrb
+File: ./images/demo1.png Graphic file (type bmp)
+<./images/demo1.png>
+) [9
+
+]
+File: ./images/demo2.png Graphic file (type bmp)
+<./images/demo2.png>
+[10
+
+]
+\openout4 = `07_readr.vrb'.
+
+(./07_readr.vrb
+File: ./images/demo2.png Graphic file (type bmp)
+<./images/demo2.png>
+)
+Overfull \vbox (3.11292pt too high) detected at line 286
  []
 
-[9
+[11
 
-] [10
+]
+\openout4 = `07_readr.vrb'.
+
+(./07_readr.vrb)
+Overfull \vbox (5.68507pt too high) detected at line 306
+ []
+
+[12
+
+]
+\openout4 = `07_readr.vrb'.
+
+(./07_readr.vrb)
+Overfull \vbox (5.61307pt too high) detected at line 326
+ []
+
+[13
+
+] [14
 
 ]
 \tf@nav=\write7
@@ -1487,12 +1517,12 @@ Package rerunfilecheck Info: File `07_readr.out' has not changed.
 (rerunfilecheck)             Checksum: 73BF5BDE8C151143AD417CB1E95D5E74;150.
  ) 
 Here is how much of TeX's memory you used:
- 33399 strings out of 478427
- 701405 string characters out of 5857901
- 1039080 words of memory out of 5000000
- 52940 multiletter control sequences out of 15000+600000
+ 33447 strings out of 478427
+ 702317 string characters out of 5857901
+ 1039304 words of memory out of 5000000
+ 52982 multiletter control sequences out of 15000+600000
  417351 words of font info for 85 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  101i,13n,138p,1811b,755s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on 07_readr.pdf (10 pages).
+Output written on 07_readr.pdf (14 pages).
