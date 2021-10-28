@@ -42,7 +42,7 @@ penguins %>%
 ## 丰富的标度体系
 
 ggplot2中标度函数是由"_"分割的三个部分构成的，比如
-```{r}
+```{r, eval=FALSE}
 scale_x_continuous()
 scale_colour_manual()
 ```
@@ -56,7 +56,7 @@ scale_colour_manual()
 每个标度函数内部都有丰富的参数系统，
 
 - 位置标度
-```{r}
+```{r, eval=FALSE}
 scale_x_continuous(
   name = waiver(),
   breaks = waiver(),
@@ -75,7 +75,7 @@ scale_x_continuous(
 ```
 
 - 颜色标度
-```{r}
+```{r, eval=FALSE}
 scale_colour_manual(
   palette = function(), 
   limits = NULL,
@@ -94,7 +94,7 @@ scale_colour_manual(
 
 - 参数`breaks`, 控制显示在**坐标轴**或者**图例**上的刻度值（刻度位置）
 
-- 参数`labels`, 坐标和图例的间隔标签
+- 参数`labels`, 坐标和图例的间隔**标签**
   - 一般情况下，内置函数会自动完成
   - 也可人工指定一个字符型向量，与`breaks`提供的字符型向量一一对应
   - 也可以是**函数**，把`breaks`提供的字符型向量当做函数的输入
@@ -107,7 +107,7 @@ scale_colour_manual(
 
 - 参数`expand`, 控制参数溢出量
 
-- 参数`range`, 设置尺寸大小范围，比如针对点的相对大小
+
 
 
 下面，我们通过具体的案例讲解如何使用参数，把图形变成我们想要的模样。
@@ -254,11 +254,13 @@ penguins %>%
 ```
 
 
+
+
 ## 修改横坐标标签
 
 让横坐标标签有单位，比如`30mm, 35mm, 40mm, 45mm, 50mm, 55mm, 60mm`
 
-你是一个很实诚地娃
+你可能是一个很实诚的娃
 ```{r}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
@@ -292,7 +294,30 @@ penguins %>%
     limits = c(30, 60),
     breaks = scales::breaks_width(width = 5),
     labels = scales::unit_format(unit = "mm", sep = "")
-    )
+  )
+```
+
+
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  scale_x_continuous(
+    limits = c(30, 60),
+    labels = scales::unit_format(unit = "mm", sep = "")
+  )
+```
+
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  scale_x_continuous(
+    limits = c(30, 60),
+    labels = scales::dollar
+  )
 ```
 
 
@@ -301,8 +326,9 @@ penguins %>%
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point(aes(colour = species)) +
   scale_x_continuous(
+    limits = c(30, 60),
     labels = scales::label_percent()
-    ) 
+  ) 
 ```
 
 
@@ -317,13 +343,14 @@ penguins %>%
 
 
 
-**课堂练习**：修改纵坐标的标签
+**课堂练习**：让纵坐标的标签有单位，比如`12mm, 14mm, 16mm, 18mm, 20mm, 22mm`
 
 ```{r, eval=FALSE}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point() +
   scale_y_continuous(
+    
   )
 ```
 
@@ -426,6 +453,21 @@ penguins %>%
 也可以按照自己的顺序来对应
 
 ```{r}
+penguins %>%
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  scale_color_manual(
+    values = c(
+      "Chinstrap" = "darkorange",
+      "Gentoo"    = "purple",
+      "Adelie"    = "cyan4"
+    )
+  )
+```
+
+
+也可以先 `breaks` 然后 `values`
+```{r}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point(aes(colour = species)) +
@@ -439,6 +481,8 @@ penguins %>%
 
 
 
+
+**课堂练习**，自己定义颜色吧
 ```{r, eval=FALSE}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
@@ -467,10 +511,21 @@ penguins %>%
 
 
 
+**课堂练习**：下面的柱状图，希望不同的柱子使用不同的颜色
+```{r}
+penguins %>% 
+  group_by(species) %>% 
+  summarise(
+    mean = mean(bill_length_mm)
+  ) %>% 
+  ggplot(aes(x = species, y = mean)) +
+  geom_col(width = 0.5)
+```
+
+
 
 
 ## 使用模板配色
-
 
 - 可以使用[ColorBrewer](https://colorbrewer2.org)色彩
 
@@ -480,6 +535,7 @@ penguins %>%
   geom_point(aes(colour = species)) +
   scale_color_brewer(type = "qual", palette = "Set1")
 ```
+
 
 ```{r, fig.width = 5, fig.asp = 0.618}
 penguins %>% 
