@@ -190,12 +190,24 @@ penguins %>%
 为什么是两个峰？如何探究背后的原因？种类不同导致的？性别不同导致的？还是所在岛屿不同导致的？
 
 ### dot plot
+
 ```{r}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, fill = species)) +
   geom_dotplot(binwidth = .5) 
 ```
 
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = species, y = bill_length_mm)) +
+  geom_dotplot(
+    binaxis  = "y", 
+    stackdir = "down", 
+    dotsize  = 0.4, 
+    position = position_nudge(-0.025)
+  )
+```
 
 
 ## 不同种类，嘴峰长度分布

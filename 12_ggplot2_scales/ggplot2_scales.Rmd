@@ -567,7 +567,10 @@ penguins %>%
   scale_fill_discrete_qualitative(palette = "cold")
 ```
 
+
+
 ## 连续的颜色
+
 ```{r}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
@@ -576,11 +579,30 @@ penguins %>%
 
 
 
+
 ```{r}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point(aes(color = body_mass_g)) +
   scale_color_gradient(low = "grey", high = "brown")
+```
+
+
+
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(fill = body_mass_g), shape = 21) +
+  scale_fill_distiller(palette = "Oranges",  direction = 1)
+```
+
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(fill = body_mass_g), shape = 21) +
+  scale_fill_distiller(palette = "YlGn", direction = 1) 
 ```
 
 
