@@ -119,7 +119,7 @@ scale_colour_manual(
 ```{r}
 penguins %>% 
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_point(aes(color =  species)) 
+  geom_point(aes(color = species)) 
 ```
 
 
@@ -205,6 +205,8 @@ penguins %>%
     breaks = scales::breaks_width(width = 5)
   )
 ```
+
+
 
 ```{r}
 penguins %>% 
@@ -319,6 +321,18 @@ penguins %>%
     labels = scales::dollar
   )
 ```
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  scale_x_continuous(
+    limits = c(30, 60),
+    labels = scales::label_number(prefix = "CNY", sep = "")
+  )
+```
+
+
 
 
 ```{r}
@@ -523,6 +537,22 @@ penguins %>%
 ```
 
 
+
+**课堂练习**：完成上一节课的问题，用单独一个颜色高亮Gentoo那根柱子，其他两个柱子用灰色
+
+```{r}
+penguins %>% 
+  count(species) %>% 
+  mutate(is_Gentoo = if_else(species == "Gentoo", "yes", "no")) %>% 
+  
+  ggplot(aes(x = fct_reorder(species, n), y = n, fill = is_Gentoo)) +
+  geom_col(width = 0.5) +
+  scale_fill_manual(
+     values = c("gray60", "darkorange")
+  ) +
+  theme_classic() +
+  theme(legend.position = "none")
+```
 
 
 ## 使用模板配色

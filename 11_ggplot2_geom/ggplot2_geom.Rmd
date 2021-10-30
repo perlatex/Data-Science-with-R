@@ -126,16 +126,49 @@ penguins %>%
 是好图吗？怎么改进？
 
 - 排序 
+```{r}
+penguins %>% 
+  count(species) %>% 
+  ggplot(aes(x = fct_reorder(species, n), y = n)) +
+  geom_col(width = 0.5)
+```
+
 - 翻转 
+```{r}
+penguins %>% 
+  count(species) %>% 
+  ggplot(aes(y = fct_reorder(species, n), x = n)) +
+  geom_col(width = 0.5)
+```
+
+
 - 配色
 
+```{r}
+penguins %>% 
+  count(species) %>% 
+  ggplot(aes(x = fct_reorder(species, n), y = n, fill = species)) +
+  geom_col(width = 0.5)
+```
 
 ```{block}
 色彩是一种很强的刺激（信息），一般会有三种作用：分组，强调，量化。如果你的图不想表达这三种意思，那图中尽可能的不要用太多色彩
 ```
 
 
-**课堂练习**：数量最多的那根柱子，用单独一个颜色
+**课堂练习**：用单独一个颜色高亮Gentoo那根柱子，其他两个柱子用灰色
+
+```{r}
+penguins %>% 
+  count(species) %>% 
+  mutate(is_Gentoo = if_else(species == "Gentoo", "yes", "no")) %>% 
+  
+  ggplot(aes(x = fct_reorder(species, n), y = n, fill = is_Gentoo)) +
+  geom_col(width = 0.5) +
+  theme_classic()
+```
+
+问题来了，怎么修改颜色？下节课讲。
 
 
 ## 每个种类嘴峰长度的均值
@@ -188,6 +221,20 @@ penguins %>%
 
 
 为什么是两个峰？如何探究背后的原因？种类不同导致的？性别不同导致的？还是所在岛屿不同导致的？
+
+```{r}
+penguins %>% 
+    ggplot(aes(x = bill_length_mm, color = species)) +
+    geom_density()
+```
+
+
+```{r}
+penguins %>% 
+  filter(species == "Gentoo") %>% 
+  ggplot(aes(x = bill_length_mm, color = sex)) +
+  geom_density()
+```
 
 ### dot plot
 
@@ -456,6 +503,12 @@ penguins %>%
 
 **课堂练习**：用分面画出，不同种类企鹅bill_length_mm的密度分布图
 
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, color = species)) +
+  geom_density() +
+  facet_wrap(vars(species))
+```
 
 
 
@@ -489,6 +542,7 @@ penguins %>%
   geom_point(data = m, aes(y = mean), color = "red", size = 5) 
 ```
 
+**注意这张图的继承关系**，包括`data =` 以及 `aes()` 的继承
 
 
 ## 添加文本标签
