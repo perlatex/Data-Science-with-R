@@ -1,0 +1,157 @@
+---
+title: "行方向上的统计"
+author: "王小二"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+
+# 数据框中的向量
+
+tidyverse遵循的tidy原则，一列表示一个变量，一行表示一次观察。
+这种数据存储格式，**列方向**的操作很方便，但在某些特定的场合我们需要**行方向**操作。
+
+```{r, out.width = '100%', fig.align='left', echo = FALSE}
+knitr::include_graphics(path = "images/vctr.png")
+```
+
+
+
+## 提问
+```{r}
+library(tidyverse)
+df <- tibble(
+  id = letters[1:6],
+  w  = 10:15,
+  x  = 20:25,
+  y  = 30:35,
+  z  = 40:45
+)
+df
+```
+
+我们现在想计算每行`w, x, y, z`的均值，
+
+```{r}
+df %>% 
+  mutate(
+    avg = mean(c(w, x, y, z))
+  )
+```
+
+
+```{r}
+df %>% 
+  mutate(
+    avg = sum(c(w, x, y, z))/4
+  )
+```
+
+好像不对？为什么呢？
+
+
+
+## 使用pivot_longer()方法
+
+用上节课`tidyr`的方法
+```{r}
+df_summary <- df %>%
+  pivot_longer(
+    cols      = -id,
+    names_to  = "variable",
+    values_to = "value"
+  ) %>%
+  group_by(id) %>%
+  summarize(
+    r_mean = mean(value)
+  )
+df_summary
+```
+
+
+最后再与原始数据合并，就需要再`left_join()`一次
+
+```{r}
+df %>% left_join(df_summary, by = "id")
+```
+
+虽然思路清晰，但还是挺周转的。
+
+
+
+## 使用rowwise()
+
+现在可以用 `rowwise()`
+
+```{r }
+df %>%
+  rowwise() %>%
+  mutate(avg = mean(c(w, x, y, z)))
+```
+
+欧力给！
+
+
+## 更轻便的方法rowwise() + c_across()
+
+如果数据很多列的话，我想偷懒，毕竟`select()`的语法，让人沉醉。
+
+我们可以使用`rowwise() + c_across()`组合，让代码变的轻巧一点。
+
+
+```{r}
+df %>%
+  rowwise() %>%
+  mutate(
+    avg = mean(c_across(w:z))
+  )
+```
+
+
+这个很好的解决方案中，`rowwise()`工作原理类似`group_by()`，它是按每一行进行分组，然后按行（行方向）统计
+
+```{r, out.width = '100%', fig.align='left', echo = FALSE}
+knitr::include_graphics(path = "images/colwise_vs_rowwise.jpg")
+```
+
+
+
+
+```{r }
+df %>%
+  rowwise(id) %>%
+  mutate(
+    total = mean(c_across(w:z))
+  )
+```
+
+
+```{r }
+df %>%
+  rowwise(id) %>%
+  mutate(
+    mean = mean(c_across(is.numeric))
+  )
+```
+
+
+```{r }
+df %>%
+  rowwise(id) %>%
+  summarise(
+    m = mean(c_across(is.numeric))
+  )
+```
+
+
+
+这种方法经常用于处理**列表列**以及在行方向上的**建模**，希望有时间能讲到。
+
