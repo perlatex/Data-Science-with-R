@@ -1,0 +1,210 @@
+---
+title: "xia"
+author: "pipiming"
+date: "2021/9/14"
+output: html_document
+---
+
+
+
+ 
+
+这是你们脑院美女师姐张霞提供的一份真实的实验数据，经过她本人同意，数据分享大家，作为练习。
+感谢梁媛同学整理说明文档。
+
+## 实验设计
+
+每个被试需要完成两组实验，每组48个试次，即每个人有96试次。
+
+```{r, out.width='100%', fig.align='center', echo = F}
+knitr::include_graphics("./images/procedure.png")
+```
+
+
+Pex1相容任务
+
+```{r, out.width='850%', fig.align='center', fig.cap='相容任务', echo = F}
+knitr::include_graphics("./images/instruction_1.jpg")
+```
+
+Pex2不相容任务
+
+```{r, out.width='85%', fig.align='center', fig.cap='不相容任务', echo = F}
+knitr::include_graphics("./images/instruction_2.jpg")
+```
+
+
+## 变量含义
+
+一共有27个人，因此数据总共2592行。
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+data <- read_csv("./demo_data/xia.csv") %>%
+  janitor::clean_names() %>%
+  mutate(sti_rt = as.numeric(sti_rt))
+
+glimpse(data)
+```
+
+
+
+| 变量           | 含义                                                |
+|----------------|-----------------------------------------------------|
+| experiment_name| 实验名                                              |
+| subject        | 被试编号                                            |
+| age            | 被试年龄                                            |
+| cycle          | 无意义                                              |
+| name           | 被试姓名                                            |
+| answer         | 正确答案（K、S）                                    |
+| kind           | 刺激类型（J:积极属性词；X:消极属性词；P:厌恶词)     |
+| running        | 任务种类（Pex1:相容任务；Pex2:不相容任务）          |
+| sti_acc        | 反应类别：是否正确（1:正确；0:错误）                |
+| sti_resp       | 被试做出的按键反应（K、S）                          | 
+| sti_rt         | 反应时                                              |
+| stimuli        | 刺激词（具体内容）                                  |
+| stimuli_no     | 刺激编号                                            |
+
+
+
+
+## 数据探索
+
+每个被试完成多少试次？
+```{r}
+data %>% count(name)
+```
+
+
+每个被试每组有多少试次？
+```{r}
+data %>% count(name, running)
+```
+
+
+反应类别有哪些？
+```{r}
+data %>% count(sti_acc)
+```
+
+反应时的分布
+```{r}
+data %>% 
+  ggplot(aes(x = sti_rt)) +
+  geom_histogram() +
+  geom_vline(xintercept = 350, color = "red")
+```
+
+被试做出的按键反应有哪些？
+```{r}
+data %>% count(sti_resp)
+```
+
+
+
+## 任务需求
+
+关注的是sti_rt（反应时），需要计算**每个被试**（subject）的D值，计算步骤如下：
+
+- 删除反应时（sti_rt）小于350ms的数据，删除被试没有按键的试次（sti_resp为空）
+
+- 分别计算**每个被试**第一组（running中Pex1）和第二组（running中Pex2）所有正确反应试次（sti_acc=1）的平均反应时$X_1$和$X_2$
+
+- 计算**每个被试**在两组实验中所有正确反应时的总标准差$SD$
+
+- 采用（X1+400ms）替代第一组中不正确的反应时，采用（X2+400ms）替代第二组中不正确试次的反应时
+
+- 分别计算**每个被试**第一组和第二组矫正后（错误试次反应时替换后）的平均反应时$X_1'$与$X_2'$
+
+- 求**每个被试**的D值
+
+$$
+D = \frac{X_2'- X_1'}{SD}
+$$
+
+
+## 开始
+
+### 筛选有效数据集
+
+
+```{r}
+df_eff <- data %>%
+  filter(sti_rt > 349) %>%          # 删除反应时小于350ms的试次
+  filter(sti_resp %in% c("K", "S")) # 删除被试没有按键的试次
+
+df_eff
+```
+
+
+
+
+
+### 分组计算正确反应试次的平均反应时
+
+```{r}
+df_mean_RT <- df_eff %>%
+  filter(sti_acc == 1) %>%  # 正确反应试次
+
+  group_by(name, running) %>%
+  summarise(
+    mean_before = mean(sti_rt)
+  )
+df_mean_RT
+```
+
+
+
+
+### 计算所有正确反应时的总标准差SD
+```{r}
+df_sd_RT <- df_eff %>%
+  filter(sti_acc == 1) %>%  # 正确反应试次
+
+  group_by(name) %>%
+  summarise(
+    sd = sd(sti_rt)
+  )
+
+df_sd_RT
+```
+
+
+
+
+### 替换并完成统计
+
+df_eff 包含两种情形：
+
+- sti_acc == 1  正确反应试次
+- sti_acc == 0  错误反应试次
+
+
+- 采用（X1+400ms）替代第一组中不正确试次的反应时
+- 采用（X2+400ms）替代第二组中不正确试次的反应时
+
+```{r}
+df_eff %>%
+  mutate(
+    sti_rt = if_else(sti_acc == 0, NA_real_, sti_rt)
+  ) %>%
+  group_by(name, running) %>%
+  mutate(
+    sti_rt_adjust = if_else(is.na(sti_rt), mean(sti_rt, na.rm = TRUE) + 400, sti_rt)
+  ) %>%
+  summarise(
+    mean_after = mean(sti_rt_adjust)
+  ) %>%
+  pivot_wider(
+    names_from = running,
+    values_from = mean_after
+  ) %>%
+  left_join(df_sd_RT, by = "name") %>%
+  mutate(
+    D = (Pex2 - Pex1) / sd
+  )
+```
+
+
+
+
