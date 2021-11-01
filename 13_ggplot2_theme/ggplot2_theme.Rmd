@@ -234,6 +234,32 @@ penguins %>%
   )
 ```
 
+
+
+## 王老师教你偷懒
+
+- `theme_minimal()` 可以去掉灰色背景和网格线
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = species, fill = species)) +
+  geom_bar() + 
+  scale_fill_manual(values = c("#74656E", "#E2D9C1", "#608690")) +
+  theme_minimal() +
+  theme(plot.background = element_rect(fill = "#FBCE74"))
+```
+
+
+- `theme_classic()` 经典风格
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = species, fill = species)) +
+  geom_bar() + 
+  theme_classic(base_size = 25)
+```
+
+
 # 小结
 
 ```{r, out.width = '99%', echo = FALSE}
