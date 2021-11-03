@@ -302,6 +302,13 @@ knitr::include_graphics("images/map-Texas-income-1.png")
 knitr::include_graphics("images/theme_colors.png")
 ```
 
+## 色彩的运用
+
+```{r, out.width='50%', fig.align='center'}
+colorspace::swatchplot(c("red", "green", "blue", "cyan", "magenta", "yellow"))
+colorspace::swatchplot(c("firebrick", "springgreen4", "blue3", "turquoise3", "darkorchid2", "gold2"))
+```
+
 
 ## 色彩的运用
 
