@@ -414,6 +414,23 @@ penguins %>%
   )
 ```
 
+或者
+```{r}
+penguins %>%
+  mutate(
+    across(c(bill_length_mm, bill_depth_mm), function(x) x - mean(x))
+  )
+```
+
+或者
+```{r}
+# using purrr style
+penguins %>%
+  mutate(
+    across(c(bill_length_mm, bill_depth_mm), ~ .x - mean(.x))
+  )
+```
+
 
 ## 数据标准化
 
@@ -430,9 +447,8 @@ penguins %>%
 ```
 
 
-或者使用更简洁的方法
+或者
 ```{r}
-# using across() and purrr style
 penguins %>%
   summarise(
     across(starts_with("bill_"), ~ (.x - mean(.x)) / sd(.x))
@@ -441,15 +457,26 @@ penguins %>%
 
 
 
-## 多列多个统计函数
+## 对多列执行多个统计函数
 
 ```{r}
 penguins %>%
   group_by(species) %>%
   summarise(
-    across(ends_with("_mm"), list(mean = mean, sd = sd), na.rm = TRUE)
+    across(ends_with("_mm"), list(mean, sd))
   )
 ```
+
+
+最好给每个函数取个名字
+```{r}
+penguins %>%
+  group_by(species) %>%
+  summarise(
+    across(ends_with("_mm"), list(mymean = mean, mysd = sd))
+  )
+```
+
 
 
 **随堂练习**：

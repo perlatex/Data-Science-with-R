@@ -176,9 +176,10 @@ babynames %>%
   slice(1)
 ```
 
-10. 统计男孩女孩的全部人数
+10. 统计男孩和女孩的人数
 ```{r}
 babynames %>%
+  group_by(sex) %>%
   summarise(
     num = sum(n)
   )
@@ -209,6 +210,10 @@ babynames %>%
   filter(name == "Khaleesi") %>%
   arrange(year) %>% 
   slice(1)
+
+babynames %>%
+  filter(name == "Khaleesi") %>%
+  slice_min(year)
 ```
 
 14. 找出最受欢迎的姓名（分男孩女孩）
