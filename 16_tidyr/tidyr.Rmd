@@ -249,9 +249,9 @@ d
 
 ```{r}
 penguins %>%
-  select(sex, bill_length_mm:body_mass_g) %>%
+  select(bill_length_mm:body_mass_g) %>%
   summarise(
-    across(-sex, mean)
+    across(everything(), mean)
   ) %>% 
   pivot_longer(
     cols = everything(),
@@ -261,13 +261,15 @@ penguins %>%
 ```
 
 
-- 统计penguins各个体征的均值和标准差，然后变成长表格
+- 统计penguins各个体征的均值和标准差，然后旋转数据框，让数据框的第一列是函数名
+
+第一种方法
 
 ```{r}
-df_stat <- penguins %>%
-  select(sex, bill_length_mm:body_mass_g) %>%
+df_stat1 <- penguins %>%
+  select(bill_length_mm:body_mass_g) %>%
   pivot_longer(
-    cols = -sex,
+    cols = everything(),
     names_to = "index",
     values_to = "value"
   ) %>%
@@ -276,13 +278,13 @@ df_stat <- penguins %>%
     mean = mean(value),
     sd = sd(value)
   )
-df_stat
+df_stat1
 ```
 
 
-再旋转，让mean 和sd 变成第一列
+**提示**：先将mean和sd两列聚合成一列，然后再把**体征指标所在列**弄成列名
 ```{r}
-df_stat %>%
+df_stat1 %>%
   pivot_longer(
     cols = -index,
     names_to = "funss",
@@ -291,5 +293,27 @@ df_stat %>%
   pivot_wider(
     names_from = index,
     values_from = value
+  )
+```
+
+
+第二种方法
+```{r}
+df_stat2 <- penguins %>%
+  select(bill_length_mm:body_mass_g) %>%
+  summarise(
+    across(everything(),list(mean = mean, sd = sd))
+  ) 
+df_stat2
+```
+
+**提示**：`df_stat2`的列名分成两部分，一部分成为新的一列的值，一部分仍然保持为列名
+
+```{r}
+df_stat2 %>% 
+  pivot_longer(
+    cols = everything(),
+    names_to = c(".value", "index"),
+    names_pattern = "(.*)_(.*)"
   )
 ```
