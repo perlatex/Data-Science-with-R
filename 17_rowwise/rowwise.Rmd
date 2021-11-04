@@ -100,7 +100,7 @@ df %>%
 欧力给！
 
 
-## 更轻便的方法rowwise() + c_across()
+## 更轻便的方法是rowwise() + c_across()
 
 如果数据很多列的话，我想偷懒，毕竟`select()`的语法，让人沉醉。
 
@@ -116,20 +116,12 @@ df %>%
 ```
 
 
-这个很好的解决方案中，`rowwise()`工作原理类似`group_by()`，它是按每一行进行分组，然后按行（行方向）统计
-
-```{r, out.width = '100%', fig.align='left', echo = FALSE}
-knitr::include_graphics(path = "images/colwise_vs_rowwise.jpg")
-```
-
-
-
 
 ```{r }
 df %>%
   rowwise(id) %>%
   mutate(
-    total = mean(c_across(w:z))
+    total = mean(c_across(everything()))
   )
 ```
 
@@ -148,6 +140,43 @@ df %>%
   rowwise(id) %>%
   summarise(
     m = mean(c_across(is.numeric))
+  )
+```
+
+
+
+这个很好的解决方案中，`rowwise()`工作原理类似`group_by()`，它是按每一行进行分组，然后按行（行方向）统计
+
+```{r, out.width = '100%', fig.align='left', echo = FALSE}
+knitr::include_graphics(path = "images/colwise_vs_rowwise.jpg")
+```
+
+下面我们对比 `group_by()` 和 `rowwise()` 的区别和用法
+
+```{r}
+dd <- tibble(
+  id = c("a", "a", "b", "b"),
+  x = 1:4,
+  y = 11:14
+)
+dd
+```
+
+
+```{r}
+dd %>% 
+  group_by(id) %>% 
+  mutate(
+    across(c(x, y), mean)
+  )
+```
+
+
+```{r}
+dd %>% 
+  rowwise(id) %>% 
+  mutate(
+    mean = mean(c_across(c(x, y)))
   )
 ```
 

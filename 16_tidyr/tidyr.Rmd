@@ -98,8 +98,8 @@ long
 这里`pivot_longer()`函数有三个主要的参数：
 
 - 参数`cols`，表示**哪些列**需要转换
-- 参数`names_to`，表示`cols`选取的这些列的**名字**，构成了新的一列，这里需要取一个名字.
-- 参数`values_to`， 表示`cols`选取的这些列的**值**，构成了新的一列，这里也需要取一个名字.
+- 参数`names_to`，表示`cols`选取的这些列的**名字**，构成了新的一列，需要取一个新的列名.
+- 参数`values_to`， 表示`cols`选取的这些列的**值**，构成了新的一列，这里也需要取一个新的列名.
 
 
 
@@ -117,7 +117,7 @@ plant_height %>%
 
 - 筛选的问题解决了
 ```{r}
-plant_height %>% 
+long %>% 
   filter(height >= 0.8)
 ```
 
@@ -148,7 +148,7 @@ knitr::include_graphics("images/sandwich_pivot.jpg")
 ```{r}
 wide <- long %>% 
   pivot_wider(
-    names_from = "plant",
+    names_from  = "plant",
     values_from = "height"
  )
 wide
@@ -209,9 +209,9 @@ penguins %>%
 ```
 
 
-## 课堂练习
+# 课堂练习
 
-用分面画出不同性别的各体征值的箱线图
+- 用分面画出不同性别的各体征值的箱线图
 
 ```{r}
 penguins %>%
@@ -227,4 +227,69 @@ penguins %>%
   geom_boxplot() +
   geom_jitter() +
   facet_wrap(vars(index), scales = "free")
+```
+
+
+- 旋转数据框，让学科成为第一列，姓名成为其它列
+```{r}
+d <- tibble::tribble(
+    ~name, ~chinese, ~math, ~physics, ~english, ~music, ~sport,
+  "Alice",      88L,   63L,      98L,      89L,    85L,    72L,
+    "Bob",      85L,   75L,      85L,      82L,    73L,    83L,
+  "Carlo",      95L,   98L,      75L,      75L,    68L,    84L
+  )
+d
+```
+
+
+
+
+
+- 统计penguins各个体征的均值，然后变成长表格
+
+```{r}
+penguins %>%
+  select(sex, bill_length_mm:body_mass_g) %>%
+  summarise(
+    across(-sex, mean)
+  ) %>% 
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) 
+```
+
+
+- 统计penguins各个体征的均值和标准差，然后变成长表格
+
+```{r}
+df_stat <- penguins %>%
+  select(sex, bill_length_mm:body_mass_g) %>%
+  pivot_longer(
+    cols = -sex,
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  group_by(index) %>%
+  summarise(
+    mean = mean(value),
+    sd = sd(value)
+  )
+df_stat
+```
+
+
+再旋转，让mean 和sd 变成第一列
+```{r}
+df_stat %>%
+  pivot_longer(
+    cols = -index,
+    names_to = "funss",
+    values_to = "value"
+  ) %>%
+  pivot_wider(
+    names_from = index,
+    values_from = value
+  )
 ```

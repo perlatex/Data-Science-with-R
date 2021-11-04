@@ -100,7 +100,10 @@ data %>%
 data %>% count(sti_resp)
 ```
 
-
+准确率是多少
+```{r}
+data %>% count(answer, sti_resp)
+```
 
 ## 任务需求
 
