@@ -15,12 +15,14 @@ output:
 
 
 
+今年诺贝尔经济学奖给了两个做因果推断的人。
+
+
 ```{r, warning = F, message = F }
 library(tidyverse)
 library(dagitty)
 library(ggdag)
 ```
-
 
 
 # 因果推断的小案例
@@ -75,7 +77,8 @@ head(sim_data)
 
 
 
-现在，我们的目标就是预测营销支出对销售额的影响。答案是0.15，这个数怎么来的呢
+现在，我们的目标就是预测**营销支出对销售额的影响**。答案是0.15，这个数怎么来的呢?
+
 $$
 \beta_1 \cdot \beta_3 = 0.3 \cdot 0.5 = 0.15
 $$
@@ -88,7 +91,7 @@ $$
 
 先画出`mkt` 与 `sales`散点图
 
-```{r plot scatter plot}
+```{r}
 sim_data %>% 
   ggplot(aes(mkt, sales)) + 
   geom_point(alpha = 0.2) 
@@ -98,11 +101,13 @@ sim_data %>%
 
 我们还是用线性模型拟合下
 
-$$\text{sales} = r_0 + r_1\text{mkt} + \epsilon$$ 
+$$
+\text{sales} = r_0 + r_1\text{mkt} + \epsilon
+$$ 
 
 会给出如下系数
  
-```{r fit model1, results = "asis"}
+```{r}
 model <- lm(sales ~ mkt, data = sim_data)
 coef(model)
 ```
@@ -110,7 +115,8 @@ coef(model)
 
 结果和我们的预期(0.15)相差很大。负数意味着，增加市场营销，会降低销售。
 
-**说明**：关联不等于因果，甚至给出了与因果关联完全相反的结论
+> 关联不等于因果，关联甚至给出与因果完全相反的结论
+
 
 
 ## 第二次尝试
@@ -124,12 +130,13 @@ $$
 
 我们得到系数
 
-```{r fit model2, results = "asis"}
+```{r}
 model <- lm(sales ~ mkt + visits + comp, data = sim_data)
 coef(model)
 ```
 
 这个结果显示，市场营销对销售几乎不起作用。
+OMG
 
 
 # 或许，我们应该考虑变量彼此之间的关联。
@@ -147,12 +154,12 @@ knitr::include_graphics("images/causation_inference_confounder.jpg")
 ```
 
 
-同时，市场营销会增加访问量，而这些访问量也会带来销售额的增加
+- 同时，市场营销会增加访问量，而这些访问量也会带来销售额的增加
 
 
 
 
-将以上信息汇总成一张**有向无环图** Directed Acyclic Graph (DAG)
+将以上三个信息汇总成一张**有向无环图** Directed Acyclic Graph (DAG)
 
 ```{r, fig.width = 5, fig.asp = 0.6}
 ggdag(tidy_dagitty(g)) + 
@@ -164,7 +171,9 @@ ggdag(tidy_dagitty(g)) +
 - 把**comp**作为 confounding 因子加入回归模型，
 - 模型中**visits**在某种程度上"blocks" or "absorbs"营销对销售的影响，因此我们应该将其从模型中删除。
 
-最终得到模型
+
+
+**最终**得到模型
 
 $$
 \text{sales} = r_0 + r_1\text{mkt} + r_2\text{comp} + \epsilon
@@ -172,7 +181,7 @@ $$
 
 回归系数如下
 
-```{r fit model3, results = "asis"}
+```{r}
 model <- lm(sales ~ mkt + comp, data = sim_data)
 coef(model)
 ```

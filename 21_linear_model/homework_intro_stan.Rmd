@@ -1,0 +1,105 @@
+---
+title: "Introduction to Stan"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+
+
+# 配置 
+
+按照 <https://bookdown.org/wangminjie/R4DS/bayesian-intro-stan.html> 配置Stan
+
+
+
+## 测试 
+
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+library(rstan)
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+```
+
+
+这是一份肯塔基州赛马的数据集。
+
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+derby <- read_csv("./demo_data/derbyplus.csv") %>% 
+  mutate(yearnew = year - 1896)
+derby 
+```
+
+
+
+获胜速度是否有线性趋势？
+
+```{r, fig.asp=0.618, fig.width= 6}
+derby %>% 
+  ggplot(aes(x = year, y = speed)) +
+  geom_point() 
+```
+
+
+
+
+
+
+
+```{r, warning=FALSE, message=FALSE}
+stan_program <- "
+data {
+  int<lower=0> N;
+  vector[N] y;
+  vector[N] x;
+}
+parameters {
+  real alpha;
+  real beta;
+  real<lower=0> sigma;
+}
+model {
+  y ~ normal(alpha + beta * x, sigma);
+  
+  alpha  ~ normal(0, 10);
+  beta   ~ normal(0, 10);
+  sigma  ~ exponential(1);
+}
+
+"
+
+stan_data <- list(
+   N = nrow(derby),
+   y = derby$speed, 
+   x = derby$yearnew
+  )
+
+fit <- stan(model_code = stan_program, data = stan_data)
+```
+
+
+
+
+```{r, fig.asp=0.618, fig.width= 6}
+fit %>%
+  tidybayes::spread_draws(alpha, beta, sigma) %>%
+  ggplot(aes(x = beta)) +
+  tidybayes::stat_halfeye(
+    fill = "skyblue",
+    .width = c(0.66, 0.95),
+    interval_colour = "red",
+    point_colour = "red",
+  ) +
+  theme_bw()
+```
+
+

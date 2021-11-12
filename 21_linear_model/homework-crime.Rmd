@@ -1,0 +1,35 @@
+---
+title: "线性回归作业"
+author: "王小二"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+
+## 气温会影响犯罪率？
+
+这是一份美国 2009 年犯罪数量与该地区的最低观测温度的数据
+
+
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+crime <- read_csv("./demo_data/crime.csv")
+crime
+```
+
+## 要求
+
+1. 必要的数据预处理
+2. 判断是否满足线性模型的条件
+3. 建立犯罪数量与最低观测温度的线性模型
+4. 解释模型系数
+5. 想象一下温度与犯罪之间的真正联系是什么
+

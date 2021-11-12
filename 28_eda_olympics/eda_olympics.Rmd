@@ -2,28 +2,16 @@
 title: "重复Nature期刊上的一篇文章"
 author: "王小二"
 date: "`r Sys.Date()`"
-output:
-  pdf_document: 
-    latex_engine: xelatex
-    extra_dependencies:
-      ctex: UTF8
-    number_sections: yes
-    #toc: yes
-    df_print: kable
-classoptions: "hyperref, 12pt, a4paper"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
 ---
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, 
-                      message = FALSE, 
-                      warning = FALSE,
-                      fig.align = "center",
-                      fig.showtext = TRUE
-                      )
-
-options(knitr.kable.NA = '')
-```
 
 
 # 引言
@@ -40,7 +28,13 @@ knitr::include_graphics(path = "images/tileshop.jpg")
 - 女子短跑运动员正在缩小与男子的差距，也许有一天会超过男子
 
 
-我抱着好奇的心态，在补充材料里找到了文章使用的数据。**现在的任务是，重复这张图和文章的分析过程。**
+我抱着好奇的心态，在补充材料里找到了文章使用的数据。
+
+
+# 作业要求
+
+- 重复文章的分析过程和图片
+- 网络搜索，补全这几年的数据，重新建模，看看作者的观点是否依然成
 
 
 
@@ -51,8 +45,8 @@ library(tidyverse)
 library(modelr)
 library(readxl)
 
-d <- read_excel("./data/olympics.xlsx")
-d
+raw <- read_excel("./demo_data/olympics.xlsx")
+raw
 ```
 
 
@@ -66,12 +60,18 @@ d
 
 
 
+- 重复文章的模型和图片
+
+- 网络搜索，补全这几年的数据，重新建模，看看作者的观点是否依然成立
+
+
+
 # 可视化探索
 
 我们先画图看看
 
 ```{r}
-d1 <- d %>%
+df <- raw %>%
   pivot_longer(
     cols      = -Olympic_year,
     names_to  = "sex",
@@ -82,7 +82,7 @@ d1 <- d %>%
 
 
 ```{r, out.width = '100%'}
-d1 %>%
+df %>%
   ggplot(aes(x = Olympic_year, y = winning_time, color = sex)) +
   geom_point() +
   scale_color_manual(
@@ -103,12 +103,12 @@ d1 %>%
 
 
 
-## 线性回归模型
+# 线性回归模型
 
-文章建立成绩与年份的线性回归模型
+文章建立了成绩与年份的线性回归模型
 
 $$ 
-\text{score}_i = \alpha + \beta \times \text{year}_i + \epsilon_i \qquad \epsilon_i\in \text{Normal}(\mu, \sigma)
+\text{y}_i = \alpha + \beta \times \text{x}_i + \epsilon_i \qquad \epsilon_i\in \text{Normal}(0, \sigma)
 $$
 
 我们需要计算出其中系数 $\alpha$ 和 $\beta$，R语言代码如下
@@ -122,10 +122,74 @@ lm(y ~ 1 + x, data = d)
 
 
 
-# 结果
+# 分组建模
+```{r}
+df %>%
+  group_by(sex) %>%
+  group_modify(
+    ~ broom::tidy(lm(winning_time ~ 1 + Olympic_year, data = .))
+  )
+```
+
+或者
+```{r}
+df %>%
+  nest_by(sex)  %>%
+  mutate(model = list(lm(winning_time ~ 1 + Olympic_year, data = data))) %>%
+  summarise(
+    broom::tidy(model)
+  )
+```
 
 
 
+# 预测
+## 方法1
+```{r}
+newdata <- tibble(
+  Olympic_year = as.numeric(seq(1900, 2252, by = 4))
+)
+
+
+pred_df <- df %>%
+  nest_by(sex)  %>%
+  mutate(model = list(lm(winning_time ~ 1 + Olympic_year, data = data))) %>% 
+  mutate(
+    fit = list(modelr::add_predictions(data = data, model = model))
+  ) %>% 
+  mutate(
+    pred = list(modelr::add_predictions(data = newdata, model = model))
+  )
+
+pred_df
+```
+
+
+图形画出来
+```{r}
+pred_df %>% 
+  unnest(pred) %>% 
+
+  ggplot(aes(x = Olympic_year, y = pred,  group = sex,  color = sex)) +
+  geom_point() +
+  geom_line(size = 2) +
+  geom_point(data = d1, aes(y = winning_time)) +
+  scale_x_continuous(
+    breaks = seq(1900, 2252, by = 16),
+    labels = as.character(seq(1900, 2252, by = 16))
+  ) +
+  theme(axis.text.x = element_text(
+    size = 10, angle = 45, colour = "black",
+    vjust = 1, hjust = 1
+  ),
+    legend.position = "bottom"
+    
+    )
+  
+```
+
+
+## 方法2
 ```{r}
 fit_model <- function(df) lm(winning_time ~ 1 + Olympic_year, data = df)
 
@@ -135,7 +199,7 @@ grid <- tibble(
 )
 
 
-tb <- d1 %>%
+pred_df <- df %>%
   group_nest(sex) %>%
   mutate(
     mod = map(data, fit_model)
@@ -152,7 +216,7 @@ tb <- d1 %>%
 在图中画出计算结果
 
 ```{r, out.width = '100%'}
-tb %>%
+pred_df %>%
   ggplot(aes(x = Olympic_year, y = pred,  group = sex,  color = sex)) +
   geom_point() +
   geom_line(size = 2) +
@@ -168,4 +232,6 @@ tb %>%
 ```
 
 我们重复出了文章的结果和图片。早知道nature文章这么简单，10年前我也可以写啊！
+
+
 
