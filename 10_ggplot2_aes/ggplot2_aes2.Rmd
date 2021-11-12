@@ -52,8 +52,8 @@ Hadley Wickham将这套可视化语法诠释为:
 
 即，数值到图形属性的**映射**过程。映射是一个数学词汇，这里您可以理解为**一一对应**。
 
-y = f(x) 数值到数值
-aes = f(x) 数值到视觉属性
+- `y = f(x)` 数值到数值
+- `aes = f(x)` 数值到视觉属性
 
 
 ```{r, out.width = '100%', echo = FALSE}
@@ -204,9 +204,13 @@ ggplot(penguins) +
 ```{r}
 ggplot(penguins) +
   geom_point(
-    aes(x = bill_length_mm, y = bill_depth_mm, color = species)
+    aes(x = bill_length_mm, y = bill_depth_mm, color = species, alpha = sex)
   )
 ```
+
+
+可以看到，通过`color`, `size`, `shape`, `alpha`等视觉属性可以实现分组的功能。
+
 
 
 ## 默认的配色方案
@@ -293,7 +297,7 @@ ggplot(penguins) +
 ```{r}
 ggplot(penguins) +
   geom_point(aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_smooth(aes(x = bill_length_mm, y = bill_depth_mm), method = "lm")
+  geom_smooth(aes(x = bill_length_mm, y = bill_depth_mm))
 ```
 
 > 很强大，但相同的代码让我写两遍，我不高兴。要在偷懒的路上追求简约
@@ -302,7 +306,7 @@ ggplot(penguins) +
 ```{r}
 ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth()
 ```
 
 
@@ -348,6 +352,13 @@ ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = sex)) +
 ## 图层之间没有继承关系
 
 思考图中会有几种颜色？几条曲线？
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
 
 ```{r}
 ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
