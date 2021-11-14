@@ -1,5 +1,5 @@
 ---
-title: "lm beyond"
+title: "lm further"
 author: "王小二"
 date: "`r Sys.Date()`"
 output: 
