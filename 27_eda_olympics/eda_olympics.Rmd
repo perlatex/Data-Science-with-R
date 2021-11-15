@@ -68,23 +68,53 @@ raw
 
 # 常规做法
 
+
+```{r}
+df_man <- raw %>%
+  select(Olympic_year, Men_score) %>% 
+  filter(!is.na(Men_score))  
+
+df_woman <- raw %>%
+  select(Olympic_year, Women_score) %>% 
+  filter(!is.na(Women_score))
+
+model_man   <- lm(Men_score   ~ 1 + Olympic_year, data = df_man)
+model_woman <- lm(Women_score ~ 1 + Olympic_year, data = df_woman)
+```
+
+
+```{r}
+df <- raw %>%
+  pivot_longer(
+    cols      = -Olympic_year,
+    names_to  = "sex",
+    values_to = "winning_time"
+  )
+
+tibble(
+  Olympic_year = seq(1900, 2252, by = 4)
+) %>% 
+  add_predictions(model = model_man,   var = "Men_score") %>% 
+  add_predictions(model = model_woman, var = "Women_score") %>% 
+  pivot_longer(
+    cols = c("Men_score", "Women_score"),
+    names_to = "sex",
+    values_to = "winning_time"
+  ) %>% 
+  ggplot(aes(x = Olympic_year, y = winning_time, color = sex)) +
+  geom_point(data = df) +
+  geom_smooth(method = "lm")
+```
+
+
+
+下面是画出
+
 - the regression line
 - the confidence band in gray
 - the prediction band in red
 
 ```{r}
-df_man <- raw %>%
-  select(Olympic_year, Men_score) %>% 
-  filter(!is.na(winning_time))  
-
-df_woman <- df %>%
-  select(Olympic_year, Women_score) %>% 
-  filter(!is.na(winning_time))
-
-model_man   <- lm(winning_time ~ 1 + Olympic_year, data = df_man)
-model_woman <- lm(winning_time ~ 1 + Olympic_year, data = df_woman)
-
-
 df_man <- df_man %>% 
   cbind(predict.lm(object = model_man, interval = "prediction")) %>% 
   as_tibble()
@@ -212,7 +242,7 @@ pred_df1 %>%
   ggplot(aes(x = Olympic_year, y = pred,  group = sex,  color = sex)) +
   geom_point() +
   geom_line(size = 2) +
-  geom_point(data = d1, aes(y = winning_time)) +
+  geom_point(data = df, aes(y = winning_time)) +
   scale_x_continuous(
     breaks = seq(1900, 2252, by = 16),
     labels = as.character(seq(1900, 2252, by = 16))
@@ -257,7 +287,7 @@ pred_df2 %>%
   ggplot(aes(x = Olympic_year, y = pred,  group = sex,  color = sex)) +
   geom_point() +
   geom_line(size = 2) +
-  geom_point(data = d1, aes(y = winning_time)) +
+  geom_point(data = df, aes(y = winning_time)) +
   scale_x_continuous(
     breaks = seq(1900, 2252, by = 16),
     labels = as.character(seq(1900, 2252, by = 16))
