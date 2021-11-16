@@ -1,5 +1,5 @@
 ---
-title: "ggplot2之几何图形"
+title: "ggplot2之几何形状"
 author: "王小二"
 date: "`r Sys.Date()`"
 output: 
@@ -38,7 +38,7 @@ ggplot(data = <DATA>, mapping = aes(<MAPPINGS>)) +
 1. `data`: 数据框data.frame (注意，不支持向量vector和列表list类型）
 
 
-2. `geoms`: 几何图形，确定我们想画什么样的图，一个`geom_***`确定一种图形。比如
+2. `geoms`: 几何形状，确定我们想画什么样的图，一个`geom_***`确定一种形状。比如
     - `geom_point()` 画点图
     - `geom_line()`  画折线图
     - `geom_smooth()`画平滑曲线
@@ -65,7 +65,11 @@ knitr::include_graphics("./images/how_to_plot.png")
 ## 数据类型
 
 ```{block}
-前面讲到R语言数据类型，有字符串型、数值型、因子型、逻辑型、日期型等，ggplot2会将字符串型、因子型、逻辑型、日期型默认为**离散变量**，而数值型默认为**连续变量**。我们在而呈现数据的时候，可能会同时用到多种类型的数据，比如
+前面讲到R语言数据类型，有字符串型、数值型、因子型、逻辑型、日期型等，
+ggplot2会将字符串型、因子型、逻辑型、日期型默认为**离散变量**，
+而数值型默认为**连续变量**。
+
+我们在而呈现数据的时候，可能会同时用到多种类型的数据，比如
 
 * 一个离散
 * 一个连续
@@ -85,7 +89,7 @@ knitr::include_graphics("./images/how_to_plot.png")
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
-penguins <- read_csv("./demo_data/penguins.csv") 
+penguins <- read_csv("./demo_data/penguins.csv")
 penguins
 ```
 
@@ -94,7 +98,7 @@ penguins
 
 
 ```{block}
-接下来，我们需要思考应该选择什么样的图形，回答数据问题。
+接下来，我们需要思考应该选择什么样的形状，回答数据问题。
 ```
 
 
@@ -102,22 +106,21 @@ penguins
 
 统计每个种类企鹅的数量，然后画出来。
 
-按照常规的思路，我们一般会先统计，然后喂给ggplot，
+按照常规的思路，我们一般会先统计，然后喂给`ggplot()`，
 ```{r}
-penguins %>% 
-  count(species) %>% 
-  
+penguins %>%
+  count(species) %>%
   ggplot(aes(x = species, y = n)) +
   geom_point()
 ```
 
 
 
-这种情形，常用柱状图，因此可以选择`geom_col()`这种几何图形
+这种情形，常用柱状图，因此可以选择`geom_col()`这种几何形状
 
 ```{r}
-penguins %>% 
-  count(species) %>% 
+penguins %>%
+  count(species) %>%
   ggplot(aes(x = species, y = n)) +
   geom_col()
 ```
@@ -127,16 +130,16 @@ penguins %>%
 
 - 排序 
 ```{r}
-penguins %>% 
-  count(species) %>% 
+penguins %>%
+  count(species) %>%
   ggplot(aes(x = fct_reorder(species, n), y = n)) +
   geom_col(width = 0.5)
 ```
 
 - 翻转 
 ```{r}
-penguins %>% 
-  count(species) %>% 
+penguins %>%
+  count(species) %>%
   ggplot(aes(y = fct_reorder(species, n), x = n)) +
   geom_col(width = 0.5)
 ```
@@ -145,8 +148,8 @@ penguins %>%
 - 配色
 
 ```{r}
-penguins %>% 
-  count(species) %>% 
+penguins %>%
+  count(species) %>%
   ggplot(aes(x = fct_reorder(species, n), y = n, fill = species)) +
   geom_col(width = 0.5)
 ```
@@ -159,10 +162,9 @@ penguins %>%
 **课堂练习**：用单独一个颜色高亮Gentoo那根柱子，其他两个柱子用灰色
 
 ```{r}
-penguins %>% 
-  count(species) %>% 
-  mutate(is_Gentoo = if_else(species == "Gentoo", "yes", "no")) %>% 
-  
+penguins %>%
+  count(species) %>%
+  mutate(is_Gentoo = if_else(species == "Gentoo", "yes", "no")) %>%
   ggplot(aes(x = fct_reorder(species, n), y = n, fill = is_Gentoo)) +
   geom_col(width = 0.5) +
   theme_classic()
@@ -176,11 +178,11 @@ penguins %>%
 先求出不同种类企鹅嘴峰长度的均值，然后画图
 
 ```{r}
-penguins %>% 
-  group_by(species) %>% 
+penguins %>%
+  group_by(species) %>%
   summarise(
     mean = mean(bill_length_mm)
-  ) %>% 
+  ) %>%
   ggplot(aes(x = species, y = mean)) +
   geom_col(width = 0.5)
 ```
@@ -188,11 +190,11 @@ penguins %>%
 
 
 ```{r}
-penguins %>% 
-  group_by(species, sex) %>% 
+penguins %>%
+  group_by(species, sex) %>%
   summarise(
     mean = mean(bill_length_mm)
-  ) %>% 
+  ) %>%
   ggplot(aes(x = species, y = mean, fill = sex)) +
   geom_col(width = 0.5, position = position_dodge(0.6))
 ```
@@ -207,31 +209,31 @@ penguins %>%
 ### 直方图
 嘴峰长度是连续变量，可以用直方图或者密度图
 ```{r}
-penguins %>% 
-    ggplot(aes(x = bill_length_mm)) +
-    geom_histogram() 
+penguins %>%
+  ggplot(aes(x = bill_length_mm)) +
+  geom_histogram()
 ```
 
 ### 密度图
 ```{r}
-penguins %>% 
-    ggplot(aes(x = bill_length_mm)) +
-    geom_density()
+penguins %>%
+  ggplot(aes(x = bill_length_mm)) +
+  geom_density()
 ```
 
 
 为什么是两个峰？如何探究背后的原因？种类不同导致的？性别不同导致的？还是所在岛屿不同导致的？
 
 ```{r}
-penguins %>% 
-    ggplot(aes(x = bill_length_mm, color = species)) +
-    geom_density()
+penguins %>%
+  ggplot(aes(x = bill_length_mm, color = species)) +
+  geom_density()
 ```
 
 
 ```{r}
-penguins %>% 
-  filter(species == "Gentoo") %>% 
+penguins %>%
+  filter(species == "Gentoo") %>%
   ggplot(aes(x = bill_length_mm, color = sex)) +
   geom_density()
 ```
@@ -239,19 +241,19 @@ penguins %>%
 ### dot plot
 
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = bill_length_mm, fill = species)) +
-  geom_dotplot(binwidth = .5) 
+  geom_dotplot(binwidth = .5)
 ```
 
 
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = species, y = bill_length_mm)) +
   geom_dotplot(
-    binaxis  = "y", 
-    stackdir = "down", 
-    dotsize  = 0.4, 
+    binaxis  = "y",
+    stackdir = "down",
+    dotsize  = 0.4,
     position = position_nudge(-0.025)
   )
 ```
@@ -259,14 +261,14 @@ penguins %>%
 
 ## 不同种类，嘴峰长度分布
 
-这里一个是离散变量，一个是连续变量。可以选择不同的几何图形来呈现
+这里一个是离散变量，一个是连续变量。可以选择不同的几何形状来呈现
 
 
 ### 散点图
 ```{r}
-penguins %>% 
-    ggplot(aes(x = species, y = bill_length_mm)) +
-    geom_point()
+penguins %>%
+  ggplot(aes(x = species, y = bill_length_mm)) +
+  geom_point()
 ```
 
 
@@ -275,54 +277,55 @@ penguins %>%
 点重叠的处理方案
 
 ```{r}
-penguins %>% 
-    ggplot(aes(x = species, y = bill_length_mm)) +
-    geom_jitter()
+penguins %>%
+  ggplot(aes(x = species, y = bill_length_mm)) +
+  geom_jitter()
 ```
 
 
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = species, y = bill_length_mm, color = species)) +
   geom_point(
     position = position_jitter(width = 0.3, height = 0.06),
     alpha = 0.9,
     shape = 21,
     size = 3
-  ) 
+  )
 ```
 
 ### 箱线图
 可以用箱线图（箱线图可以显示分布的中位数、分位数等）
 
 ```{r}
-penguins %>% 
-    ggplot(aes(x = species, y = bill_length_mm)) +
-    geom_boxplot() +
-    geom_jitter() 
+penguins %>%
+  ggplot(aes(x = species, y = bill_length_mm)) +
+  geom_boxplot() +
+  geom_jitter()
 ```
 
 ```{r}
-penguins %>% 
-    ggplot(aes(x = fct_reorder(species, bill_length_mm, median), 
-               y = bill_length_mm)
-           ) +
-    geom_boxplot() +
-    geom_jitter() 
+penguins %>%
+  ggplot(aes(
+    x = fct_reorder(species, bill_length_mm, median),
+    y = bill_length_mm
+  )) +
+  geom_boxplot() +
+  geom_jitter()
 ```
 
 
 
 ### 小提琴图
 ```{r}
-penguins %>% 
-    ggplot(aes(x = species, y = bill_length_mm)) +
-    geom_violin(fill = "grey90")  +
-    geom_jitter() 
+penguins %>%
+  ggplot(aes(x = species, y = bill_length_mm)) +
+  geom_violin(fill = "grey90") +
+  geom_jitter()
 ```
 
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = species, y = bill_length_mm)) +
   geom_violin() +
   geom_boxplot(width = .1, fill = "black", outlier.colour = NA) +
@@ -362,7 +365,6 @@ penguins %>%
   ) +
   scale_fill_manual(values = c("#9fb69b", "#f7cfad", "#e8867c")) +
   labs(y = "bill length (mm)")
-
 ```
 
 
@@ -372,27 +374,27 @@ penguins %>%
 两个连续变量，最常用的是散点图
 
 ```{r}
-penguins %>% 
-    ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-    geom_point() 
+penguins %>%
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point()
 ```
 
 ```{r}
-penguins %>% 
-    ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-    geom_point(
-      aes(color = species, fill = species), 
-      shape = 21, 
-      alpha = .5, 
-      size = 4
-    ) 
+penguins %>%
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(
+    aes(color = species, fill = species),
+    shape = 21,
+    alpha = .5,
+    size = 4
+  )
 ```
 
 ## 增加拟合回归线
 
 ### polynomial regression
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point() +
   stat_smooth(method = loess, method.args = list(degree = 1))
@@ -402,7 +404,7 @@ penguins %>%
 
 ### linear regression
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
   geom_point() +
   stat_smooth(method = lm, se = FALSE)
@@ -412,8 +414,8 @@ penguins %>%
 
 ### logistic regression 
 ```{r}
-penguins %>% 
-  mutate(sex = if_else(sex == "male", 1, 0)) %>% 
+penguins %>%
+  mutate(sex = if_else(sex == "male", 1, 0)) %>%
   ggplot(aes(x = bill_length_mm, y = sex)) +
   geom_point(
     position = position_jitter(width = 0.3, height = 0.06),
@@ -461,30 +463,30 @@ ggplot2实现分组的方法很多，通常情况下，是把一个**离散变�
 
 
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_point(aes(color = species)) 
+  geom_point(aes(color = species))
 ```
 
 
 
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_point(aes(shape = species)) 
+  geom_point(aes(shape = species))
 ```
 
 
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_point(aes(alpha = species)) 
+  geom_point(aes(alpha = species))
 ```
 
 
 还有一种分组方法，就是**分面**
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point() +
   facet_wrap(vars(species))
@@ -493,7 +495,7 @@ penguins %>%
 还可以弄得更漂亮点吗？
 
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point(data = penguins %>% select(-species), color = "gray80") +
   geom_point(aes(color = species)) +
@@ -504,7 +506,7 @@ penguins %>%
 **课堂练习**：用分面画出，不同种类企鹅bill_length_mm的密度分布图
 
 ```{r}
-penguins %>% 
+penguins %>%
   ggplot(aes(x = bill_length_mm, color = species)) +
   geom_density() +
   facet_wrap(vars(species))
@@ -539,7 +541,7 @@ m
 penguins %>%
   ggplot(aes(x = sex, y = body_mass_g)) +
   geom_jitter() +
-  geom_point(data = m, aes(y = mean), color = "red", size = 5) 
+  geom_point(data = m, aes(y = mean), color = "red", size = 5)
 ```
 
 **注意这张图的继承关系**，包括`data =` 以及 `aes()` 的继承
@@ -556,9 +558,11 @@ penguins %>%
   geom_point(
     data = m, aes(y = mean), size = 5, color = "red"
   ) +
-  geom_text(data = m, 
-            aes(x = sex, y = mean, label = round(mean, 2)), 
-            color = "red", vjust = -1)
+  geom_text(
+    data = m,
+    aes(x = sex, y = mean, label = round(mean, 2)),
+    color = "red", vjust = -1
+  )
 ```
 
 
@@ -568,7 +572,7 @@ penguins %>%
 mean_length <- penguins %>%
   summarise(
     mean = mean(bill_length_mm)
-  ) %>% 
+  ) %>%
   pull(mean)
 
 arrows <-
@@ -579,14 +583,16 @@ arrows <-
     y2 = 2.6
   )
 
-penguins %>% 
-  group_by(species) %>% 
-  mutate(mean_length_species = mean(bill_length_mm)) %>% 
+penguins %>%
+  group_by(species) %>%
+  mutate(mean_length_species = mean(bill_length_mm)) %>%
   ggplot(aes(x = bill_length_mm, y = species, color = species)) +
   geom_vline(aes(xintercept = mean_length), color = "gray70", size = 1.2) +
   geom_segment(
-    aes(y = species, yend = species,
-        x = mean_length, xend = mean_length_species),
+    aes(
+      y = species, yend = species,
+      x = mean_length, xend = mean_length_species
+    ),
     size = 0.8
   ) +
   geom_curve(
@@ -597,13 +603,14 @@ penguins %>%
   stat_summary(fun = mean, geom = "point", size = 5) +
   geom_jitter(size = 2, alpha = 0.25, width = 0.2) +
   annotate(
-    "text", x = 38, y = 2.5, size = 5, color = "gray20", 
+    "text",
+    x = 38, y = 2.5, size = 5, color = "gray20",
     label = "All penguins average"
   ) +
   theme(
     legend.position = "none",
     panel.grid = element_blank()
-    )
+  )
 ```
 
 
@@ -624,17 +631,17 @@ penguins %>%
 
 ```{r}
 ggplot() +
-  geom_function(fun = dnorm, args = list(mean = 0, sd = 0.5)) + 
+  geom_function(fun = dnorm, args = list(mean = 0, sd = 0.5)) +
   xlim(-2, 2)
 ```
 
 
 
 ```{r}
-f <- function(x) 0.5*exp(-abs(x))
+f <- function(x) 0.5 * exp(-abs(x))
 
 
-ggplot() + 
+ggplot() +
   geom_function(fun = f, colour = "red") +
   xlim(-5, 5)
 ```
@@ -662,9 +669,3 @@ ggplot() +
 
 
 > 用 ggplot2 画图，有种恋爱的感觉: "你懂我的图谋不轨，我懂你的故作矜持"。
-
-
-
-
-
-
