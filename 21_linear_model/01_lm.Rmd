@@ -150,19 +150,11 @@ derby %>%
 可视化探索是非常有必要的，图形给出的趋势，非常值得我们通过建立模型加以验证。
 
 
+
 假定**获胜速度**视为时间的线性函数，$Y_{i}$ 就是获胜者的速度speed，$i$就是年份，
 $$
  Y_{i}=\beta_{0}+\beta_{1}\textrm{Year}_{i}+\epsilon_{i} \quad \textrm{where} \quad \epsilon_{i}\sim \textrm{N}(0,\sigma^2)
 $$
-
-
-我们的目标是求出**系数**
-
-- $\beta_{0}$ 代表截距
-
-- $\beta_{1}$ 代表斜率
-
-
 
 
 先解释一些概念：
@@ -179,11 +171,14 @@ $$
 \hat{\epsilon}_{i}=Y_{i} - \hat{Y}_{i}
 $$
 
-- 残差的标准误
-$$
-\hat{\sigma}^2 = \sum \hat{\epsilon}^2_{i} / (n-2)
-$$ 
 
+
+
+我们的任务是估计**系数**
+
+- $\beta_{0}$ 代表截距
+
+- $\beta_{1}$ 代表斜率
 
 
 
@@ -209,7 +204,7 @@ knitr::include_graphics("images/best_fit.png")
 
 
 
-## 使用`lm()` 函数
+### 使用`lm()` 函数
 
 用R语言代码`lm(y ~ x, data)` 是最常用的线性模型函数，`lm()`是linear model的缩写
 
@@ -253,8 +248,9 @@ $$
 $$
 
 
+### 模型输出
 
-查看详细信息
+- 查看详细信息
 ```{r}
 summary(mod1)
 ```
@@ -265,49 +261,61 @@ summary(mod1)
 knitr::include_graphics("images/lm_summary.png")
 ```
 
+- 残差
+```{r}
+resid(mod1) %>% 
+  quantile()
+```
 
 
-查看系数
+- 系数
 ```{r}
 coef(mod1)
 ```
 
-
-残差
-```{r}
-resid(mod1)
-```
-
-
-系数的置信区间
+- 系数的置信区间
 ```{r}
 confint(mod1, level = 0.95)
 ```
 
-查看$R^2$
+- 标准误(Std. Error)。标准误反映的是系数估计的不确定程度。标准误越大，系数估计的不确定越大。
+```{r, out.width = '80%', fig.align='center', echo = FALSE}
+knitr::include_graphics(path = "images/jhudsl/standard_error.png")
+```
+
+- `t value`： 
+   t value = 系数/标准误
+
+
+- $R^2$，拟合优度（Goodness of Fit）是指回归直线对观测值的拟合程度。
 ```{r}
 summary(mod1)$r.squared
 summary(mod1)$adj.r.squared
 ```
 
 
-查看残差标准误(Residual standard error)
+- 残差标准误(Residual standard error)
+
+$$
+\hat{\sigma}^2 = \sum \hat{\epsilon}^2_{i} / (n-2)
+$$ 
+
 ```{r}
 summary(mod1)$sigma
 ```
 
 
 
-## 模型的解释
+### 模型的解释
 
 **建立一个`lm`模型是简单的，然而最重要的是，我们能解释这个模型。**
+
+`mod1`的解释：
 
 ```{r}
 mod1
 ```
 
-
-`mod1`的解释：
 
 根据建立的线性模型，
 $$
@@ -321,9 +329,9 @@ derby %>%
   mutate(yearnew = year - 1896)
 ```
 
-- 每年获胜速度增长0.026英尺/秒
+- 每年（时间增加一个单位）获胜速度增长0.026英尺/秒
 
-- $R^2$，拟合优度（Goodness of Fit）是指回归直线对观测值的拟合程度。$R^2$ = 0.513意味着该模型能够解释51.3%的获胜速度年度变化
+- $R^2$ = 0.513意味着该模型能够解释51.3%的获胜速度年度变化
 
 
 - 关于p value。基于模型成立的条件，假定真实的$\beta_{1} = 0$，那么观察到的$\beta_{1} >= 0.026$ 的概率是 2e-16。p = 2e-16 非常小的概率，这么小的概率的事情，是不可能发生的。所以

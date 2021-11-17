@@ -331,6 +331,14 @@ penguins %>%
   map_int(~ sum(is.na(.)))
 ```
 
+**课堂练习**，求出缺失值在每列中的比例？
+```{r}
+penguins %>% 
+  map(is.na) %>% 
+  map(sum) %>% 
+  map(~ . / nrow(penguins)) %>% 
+  bind_cols()
+```
 
 
 

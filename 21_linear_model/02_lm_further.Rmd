@@ -28,15 +28,34 @@ $$
 
 1. **Linearity **
     - 因变量和每个自变量都是线性关系
+    
+```{r, out.width = '80%', fig.align='center', echo = FALSE}
+knitr::include_graphics(path = "images/jhudsl/Linearity1.png")
+knitr::include_graphics(path = "images/jhudsl/Linearity2.png")
+```
+
 
 2. **Indpendence **
     - 对于所有的观测值，它们的误差项相互之间是独立的
 
+
+
 3. **Normality **
     - 误差项服从正态分布
 
+```{r, out.width = '80%', fig.align='center', echo = FALSE}
+knitr::include_graphics(path = "images/jhudsl/Normality1.png")
+knitr::include_graphics(path = "images/jhudsl/Normality2.png")
+```
+
+
+
 4. **Equal-variance **  
     - 所有的误差项具有同样方差
+    
+```{r, out.width = '80%', fig.align='center', echo = FALSE}
+knitr::include_graphics(path = "images/jhudsl/Homoscedasticity.png")
+```
 
 这四个假设的首字母，合起来就是**LINE**，这样很好记
 
@@ -111,22 +130,23 @@ plot(mod2)
 
 
 
-- 第一张图，Residuals vs. Fitted图, 用于检测**线性假设**。残差在Y = 0这条线周围均匀分散，不应该有什么规律，否则，说明存在我们没有考虑到的模式。但是我们看到有先增加后下降的趋势（红色线），所以可以尝试用二项式拟合，可能会比线性拟合要好。
+- 第一张图，Residuals vs. Fitted图, 用于检测**线性假设**。如果是线性关系，会有一条水平Y = 0的红线(dashed line)，残差沿着这条线周围均匀分散，不应该有什么聚集和趋势，否则，说明模型还存在我们没有考虑到的模式。本图中，我们看到有先增加后下降的明显趋势（红色线），说明残差中还有二项式的部分，这部分可以移到模型中，所以可以尝试用二项式拟合，可能会比线性拟合要好。
 
 
-- 第二张图（右上），Normal Q-Q图，用于检查**正态性假定**，点位于是直线上是最好的，点越接近线性，残差呈正态分布的可能性就越大。如果偏离直线越多，说明残差分布符合正态分布曲线越不好。
-
-
-
-- 第三张图，Scale-Location, 用于检查**等方差假定**，图中每个拟合值位置上的点不要太集中了，如果拟合值有明显的正或负趋势，表明方差不是恒定的。
+- 第二张图（右上），Normal Q-Q图，用于检查残差是否符合**正态性假定**，点沿着直线上是最好的，点越接近线性，残差呈正态分布的可能性就越大。如果偏离直线越多，说明残差分布符合正态分布曲线越不好。
 
 
 
-- 第四张图，Residuals vs. Leverage, 用于检查异常值，就是影响很大的点。绝对残差很大的点可能会对模型参数的估计产生不当影响。图中会用红色的虚线画出Cook's Distance，
-红色虚线以外的点，就是异常点，当然，我们这张图没有红色虚线，说明没有异常点。
+- 第三张图，Scale-Location, 用于检查**等方差假定**，图中的点沿着水平方向的红线周围均匀分散是最好的。如果红线不是水平直线，或者点过于集中，有明显的正或负趋势，表明方差不是恒定的。
 
 
-LINE，其中 LNE 都检查了，唯独没有I，没有**独立性的假设**，因为这个从数据上看不出的，这需要从实验设计和数据获取方法去看。
+
+- 第四张图，Residuals vs. Leverage, 用于检查异常值，或者影响很大的极端值。
+y轴是标准化残差(standardized residuals)，理想情况下，标准化残差的分散程度是恒定的，不会随Leverage的变化而改变。其次，残差很大的点会对模型参数的估计产生不当影响，图中会用红色的虚线画出Cook's Distance，
+红色虚线以外的点，就是异常点，当然，我们这张图没有红色虚线，说明没有异常点^[https://data.library.virginia.edu/diagnostic-plots/]。
+
+
+> LINE，其中 LNE 都检查了，唯独没有I，没有**独立性的假设**，因为这个从数据上看不出的，这需要从实验设计和数据获取方法去看。
 
 
 
