@@ -179,6 +179,7 @@ exams %>% map_df(mean)
 
 
 
+
 ### 额外参数
 
 将每位同学的成绩排序，默认的是升序。
@@ -313,11 +314,24 @@ tb <-
 map_dbl(tb, median)
 ```
 
-在比如，找出企鹅数据中**每列**缺失值`NA`的数量
+
+在比如，`map()`找出企鹅数据中**每列**缺失值`NA`的数量
+
 ```{r}
-palmerpenguins::penguins %>% 
+library(palmerpenguins)
+penguins %>% 
+  map(is.na) %>% 
+  map_int(sum)
+```
+
+
+或者
+```{r}
+penguins %>% 
   map_int(~ sum(is.na(.)))
 ```
+
+
 
 
 ### 在col-column中

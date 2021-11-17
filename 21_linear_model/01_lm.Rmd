@@ -16,7 +16,7 @@ output:
 
 线性模型是数据分析中最常用的一种分析方法。最基础的往往最深刻。
 
-- Everything is regression
+- Everything is regression (t tests, ANOVA, correlation, chi-square, non-parametric)
 - The simplest linear regression model
 
 
