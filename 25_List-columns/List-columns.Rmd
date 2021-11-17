@@ -27,6 +27,11 @@ knitr::include_graphics("images/dcl/tibble.png")
 
 大多情况下，我们接触到的向量是原子型向量(atomic vectors)，所谓原子型向量就是向量元素为单个值，比如 `"a"` 或者 `1`
 
+```{r}
+c(1, 3, 8)
+c("a", "3", "d")
+```
+
 ```{r, out.width = '75%', echo = FALSE}
 knitr::include_graphics("images/dcl/tibble-atomic.png")
 ```
@@ -39,7 +44,8 @@ knitr::include_graphics("images/dcl/tibble-atomic.png")
 
 ## `List-columns` (列表列) 
 
-一般情况下，data.frame的一列都是向量，即向量列；而tibble还可以允许某一列为列表(list)，那么列表构成的列，称之为列表列（list columns）
+一般情况下，data.frame的一列都是向量，即**向量列**（vector columns）；
+而tibble还可以允许某一列为列表(list)，那么列表构成的列，称之为**列表列**（list columns）
 
 ```{r, out.width = '75%', echo = FALSE}
 knitr::include_graphics("images/dcl/tibble-list-col.png")
@@ -84,16 +90,17 @@ df <- penguins %>%
 df
 ```
 
+先分组，然后构建新的列：列表列
 
 ```{r}
 tb <- df %>% 
-  nest(data = c(bill_length_mm, bill_depth_mm, body_mass_g))
+  group_by(species) %>% 
+  nest()
 
 tb
 ```
 
-
-`nest()` 为每种species创建了一个小的tibble， 每个小的tibble对应一个species
+`nest()` 为每种species对应的体征数据创建了一个小的tibble
 
 ```{r}
 tb$data[[1]]
@@ -104,24 +111,43 @@ tb$data[[1]]
 tb$data %>% typeof()
 ```
 
-
-如果想偷懒，也可以用`select()`的语法
-```{r}
-df %>% 
-  nest(data = !species)
-```
  
 可以同时创建多个列表列
 
 ```{r}
 df %>% 
-  nest(data1 = c(bill_length_mm, bill_depth_mm), data2 = body_mass_g)
+  group_by(species) %>% 
+  nest(data1 = c(bill_length_mm, bill_depth_mm, body_mass_g))
+```
+
+
+也可以直接指定哪些列进入聚合(nested)，剩下的列就视为分组变量
+```{r}
+df %>% 
+  nest(data = c(bill_length_mm, bill_depth_mm, body_mass_g))
+```
+
+也可以用`select()`的语法
+```{r}
+df %>% 
+  nest(data = !species)
 ```
 
 
 #### tidyr::summarise()
 
-用dplyr数据处理的 `group_by()` 和 `summarize()`组合可以将向量分组后分别压缩成单个值，事实上，`summarize()`还可以创建列表列。
+用dplyr数据处理的 `group_by()` 和 `summarize()`组合可以将向量分组后分别统计成单个值, 比如使用`mean()`, `sd()`函数
+
+```{r}
+df %>% 
+  group_by(species) %>% 
+  summarise(
+    data = mean(bill_length_mm)
+  )
+```
+
+
+事实上，`summarize()`还可以创建**列表列**。 比如下面这种形式， 每组下的bill_length_mm的值不做计算，保留成原状，即每组对应一个向量。
 
 ```{r}
 df_collapsed <- df %>% 
@@ -133,7 +159,7 @@ df_collapsed <- df %>%
 df_collapsed
 ```
 
-data就是构建的列表列，它的每个元素都是一个向量，对应一个species。这种方法和`nest()`方法很相似，不同在于，
+`list()`函数让构建的新的一列data是列表列，它的每个元素都是一个向量，对应一个species组。这种方法和`nest()`方法很相似，不同在于，
 `summarise() + list()` 构建的列表列其元素是原子型向量，而`nest()`构建的是tibble.
 
 ```{r}
@@ -169,7 +195,6 @@ penguins %>%
   summarise(
     n_num = n()
   ) %>% 
-  
   rowwise() %>% 
   mutate(random = list(rnorm(n = n_num))) %>% 
   ungroup()
@@ -200,9 +225,46 @@ tb %>%
 ```
 
 再比如，求每组下企鹅嘴峰长度与嘴峰厚度的相关系数
+
 ```{r}
 tb %>% 
   rowwise() %>% 
-  mutate(corr_coef = cor(data$bill_length_mm, data$bill_depth_mm))
+  mutate(num_species = nrow(data)) %>% 
+  mutate(corr_coef = cor(data$bill_length_mm, data$bill_depth_mm)) 
 ```
 
+
+然后接着添加一列，计算每组企鹅嘴峰长度的最大值
+```{r}
+tb %>% 
+  rowwise() %>% 
+  mutate(num_species = nrow(data)) %>% 
+  mutate(corr_coef = cor(data$bill_length_mm, data$bill_depth_mm)) %>% 
+  mutate(max = max(data$bill_length_mm))
+```
+
+整个思路很**顺滑**。
+
+
+**课堂练习**：penguins数据先按照性别分组，然后用`nest()`聚合成列表列的形式, 最后求出每个性别组中嘴峰长度与嘴峰厚度的相关系数
+```{r}
+penguins %>% 
+  drop_na() %>% 
+  group_by(sex) %>% 
+  nest() %>% 
+  rowwise() %>% 
+  mutate(corr_coef = cor(data$bill_length_mm, data$bill_depth_mm)) 
+```
+
+虽然这个过程可以用`summarise()`完成，
+
+```{r}
+penguins %>% 
+  drop_na() %>% 
+  group_by(sex) %>% 
+  summarise(
+    coef = cor(bill_length_mm, bill_depth_mm)
+  )
+```
+
+但用`nest()`聚合列表列的形式后，还可以用`rowwise()`接着完成更多的操作。
