@@ -15,9 +15,9 @@ output:
 
 
 
-# tibble是data.frame
+# tibble与data.frame
 
-- tibble和data.frame一样，本质上是向量构成的列表。如下图所示
+- tibble和data.frame一样，本质上都是向量构成的列表。如下图所示
 
 ```{r, out.width = '75%', echo = FALSE}
 knitr::include_graphics("images/dcl/tibble.png")
@@ -117,17 +117,26 @@ tb$data %>% typeof()
 ```{r}
 df %>% 
   group_by(species) %>% 
-  nest(data1 = c(bill_length_mm, bill_depth_mm, body_mass_g))
+  nest(data1 = c(bill_length_mm, bill_depth_mm), data2 = body_mass_g)
 ```
 
 
-也可以直接指定哪些列进入聚合(nested)，剩下的列就视为分组变量
+也可以直接指定哪些列进入聚合(nested)，**剩下的列**就视为分组变量
 ```{r}
 df %>% 
   nest(data = c(bill_length_mm, bill_depth_mm, body_mass_g))
 ```
 
-也可以用`select()`的语法
+比如
+```{r}
+penguins %>% 
+  drop_na() %>% 
+  select(species, sex, bill_length_mm, bill_depth_mm) %>% 
+  nest(data = c(bill_length_mm, bill_depth_mm))
+```
+
+
+也可以用`select()`的语法指定哪些列进入聚合(nested)
 ```{r}
 df %>% 
   nest(data = !species)
@@ -160,7 +169,7 @@ df_collapsed
 ```
 
 `list()`函数让构建的新的一列data是列表列，它的每个元素都是一个向量，对应一个species组。这种方法和`nest()`方法很相似，不同在于，
-`summarise() + list()` 构建的列表列其元素是原子型向量，而`nest()`构建的是tibble.
+`summarise() + list()` 构建的列表列其元素是原子型向量，而`nest()`构建的是tibble类型.
 
 ```{r}
 df_collapsed$data[[1]] %>% typeof()
@@ -216,7 +225,7 @@ tb %>%
 
 ### Manipulating
 
-操控列表列是一件有趣的事情，我们常常会借助于行方向的操作(rowwise)。比如找出每个岛屿企鹅的数量，我们需要对列表列data的元素依次迭代，
+操控列表列是一件有趣的事情，我们常常会借助于行方向的操作(`rowwise()`)。比如找出每个岛屿企鹅的数量，我们需要对列表列data的元素依次迭代，
 
 ```{r}
 tb %>% 
@@ -268,3 +277,6 @@ penguins %>%
 ```
 
 但用`nest()`聚合列表列的形式后，还可以用`rowwise()`接着完成更多的操作。
+
+
+构建**列表列**还会带来哪些好处呢？我们下节课接着讲。

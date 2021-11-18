@@ -135,7 +135,7 @@ df_man %>%
 
 
 
-# tidyverse做法
+# purrr-map()做法
 
 ## 先规整数据
 

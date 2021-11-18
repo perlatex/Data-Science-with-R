@@ -148,7 +148,12 @@ y轴是标准化残差(standardized residuals)，理想情况下，标准化残�
 
 > LINE，其中 LNE 都检查了，唯独没有I，没有**独立性的假设**，因为这个从数据上看不出的，这需要从实验设计和数据获取方法去看。
 
+这个包[performance](https://easystats.github.io/performance/reference/check_model.html)提供了更清晰的说明
 
+```{r, fig.height = 10, fig.asp = 0.8}
+library(performance)
+check_model(mod2)
+```
 
 ## 改进，来自残差图的提醒
 

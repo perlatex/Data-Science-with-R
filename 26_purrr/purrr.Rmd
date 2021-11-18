@@ -254,10 +254,7 @@ function(x) x - mean(x)
 
 我们能将匿名函数直接放在`map()`函数中
 ```{r}
-exams %>% 
-  map(
-    function(x) x - mean(x)
-  )
+exams %>% map( function(x) x - mean(x)  )
 ```
 
 
@@ -279,7 +276,7 @@ exams %>% map(~ . - mean(.))
 knitr::include_graphics("images/dcl/map-anonymous.png")
 ```
 
-**课堂练习**，对exams数据标准化，要求用lambda的形式写出函数
+**课堂练习**，对exams数据标准化，要求用purrr-style形式写出函数
 
 ```{r}
 exams %>% 
@@ -287,14 +284,35 @@ exams %>%
 ```
 
 
+**课堂练习**，自己写出更多purrr-style形式的函数
 
-如果熟悉匿名函数的写法，会增强代码的可读性。比如下面这段代码，找出每位同学有多少门考试成绩是高于80分的
+```{r}
+exams %>% map( ~ max(.x) )
+exams %>% map( ~ sort(.x) )
+exams %>% map( ~ quantile(.x) )
+exams %>% map( ~ .x^2 )
+```
+
+
+**课堂练习**， 如果熟悉匿名函数的写法，会增强代码的可读性和简洁程度。比如下面这段代码，找出每位同学有多少门考试成绩是高于80分的
 
 ```{r}
 exams %>% 
-  map_int(~ length(.[. > 80]))
+  map_int(~ length(.x[.x > 80]))
 ```
 
+**建议一步步解析**
+```{r, eval=FALSE}
+~ .x > 80
+
+~ .x[.x > 80]
+
+~ length(.x[.x > 80])
+
+map(~ length(.x[.x > 80]))
+
+map_int(~ length(.x[.x > 80]))
+```
 
 
 
@@ -310,27 +328,20 @@ map(.x, mean, na.rm = TRUE)
 - 匿名函数 
 
 ```{r, eval=FALSE}
-map(.x, 
-    funciton(.x) {
-      mean(.x, na.rm = TRUE)
-      }
-    )
+map(.x, funciton(.x) mean(.x, na.rm = TRUE) )
 ```
 
 - 使用 `~`  
 
 ```{r, eval=FALSE}
-function(.x) { 
-  .x *2
-}
+function(.x) .x *2
+
 # Equivalent
 ~ .x * 2
 ```
 
 ```{r, eval=FALSE}
-map(.x, 
-    ~ mean(.x, na.rm = TRUE)
-    )
+map(.x, ~ mean(.x, na.rm = TRUE) )
 ```
 :::
 
@@ -360,12 +371,13 @@ tb %>%
   )
 ```
 
-tibble本质上是向量构成的列表，因此tibble也适用`map()`函数。
-`map()`中的函数`f = median`，作用到每一列
+tibble本质上是向量构成的列表，因此tibble也适用`map()`函数。即，tibble的每一列，map给函数`f = median`
 
 ```{r}
 tb %>% map_df(median)
 ```
+
+可能不足以让你心动，我们接着往下看。
 
 
 再比如，`map()`找出企鹅数据中**每列**缺失值`NA`的数量
@@ -384,6 +396,7 @@ penguins %>%
   map_int(~ sum(is.na(.)))
 ```
 
+
 **课堂练习**，求出缺失值在每列中的比例？
 ```{r}
 penguins %>% 
@@ -401,13 +414,15 @@ penguins %>%
 ```
 
 
+
 ### 在list-column中
 
-如果想维持数据框的结构不变，新增一列显示列表中对应位置元素的长度，可以这样写
+如果想维持数据框的结构不变，新增一列显示**列表列**`x`中对应位置元素的长度，可以这样写
 
 ```{r}
 tibble(
-  x = list(1, 2:3, 4:6)
+  id = c("a", "b", "c"),
+  x = list(1, 2:3, 4:9)
 ) %>% 
  mutate(num = purrr::map_int(x, length))
 ```
