@@ -17,7 +17,7 @@ output:
 本章需要的宏包，希望大家提前安装
 
 ```{r, eval=FALSE}
-install.packages(c("bayesplot", "palmerpenguins", "rstatix", "broom", "ggstatsplot"))
+install.packages(c("bayesplot", "palmerpenguins", "rstatix", "broom", "ggstatsplot", "infer"))
 ```
 
 
@@ -107,7 +107,7 @@ t.test(
 library(rstatix)
 
 penguins %>%
-  t_test(bill_length_mm ~ sex, var.equal = TRUE)
+  rstatix::t_test(bill_length_mm ~ sex, var.equal = TRUE)
 ```
 
 
@@ -131,7 +131,84 @@ penguins %>%
 
 
 
+### using `infer`: 基于模拟的检验
 
+```{r,  echo = FALSE, fig.cap = "Hypothesis Testing Framework"}
+knitr::include_graphics("images/downey.png")
+```
+
+
+-  实际观察的差别
+
+```{r}
+library(infer)
+obs_diff <- penguins %>%
+  specify(formula = bill_length_mm ~ sex) %>%
+  calculate(
+    stat = "diff in means",
+    order = c("male", "female")
+  )
+obs_diff
+```
+
+- 模拟
+
+```{r}
+null_dist <- penguins %>%
+  specify(formula = bill_length_mm ~ sex) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 5000, type = "permute") %>% 
+  calculate(
+    stat = "diff in means",
+    order = c("male", "female")
+  )
+head(null_dist)
+```
+
+
+::: {.rmdnote}
+1. `specify()` 指定解释变量和被解释变量 (`y ~ x`)
+
+2. `hypothesize()` 指定**零假设** (比如, `independence`= `y` 和 `x` 彼此独立)
+
+3. `generate()` 从基于零假设的平行世界中抽样:
+    - `reps`，指定抽样次数
+    - `type`，指定重抽样的类型。
+
+4. `calculate()` 计算每次抽样的统计值 (`stat = "diff in means"`)
+
+::: 
+
+
+
+
+- 可视化
+
+```{r}
+null_dist %>%
+  visualize() +
+  shade_p_value(obs_stat = obs_diff, direction = "both")
+```
+
+- 计算p值
+
+```{r}
+pvalue <- null_dist %>%
+  get_pvalue(obs_stat = obs_diff, direction = "two_sided")
+
+pvalue
+```
+
+
+如果觉得麻烦，你也可以
+```{r}
+penguins %>%
+  infer::t_test(
+    formula = bill_length_mm ~ sex,
+    order = c("male", "female"),
+    alternative = "two-sided"
+  )
+```
 
 
 ## 每个种类下男企鹅和女企鹅`bill_length_mm`的均值
@@ -287,3 +364,5 @@ penguins %>%
 
 - <https://github.com/kassambara/rstatix>
 - <https://github.com/IndrajeetPatil/ggstatsplot>
+- <http://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html>
+- <https://infer.netlify.app/articles/t_test.html>
