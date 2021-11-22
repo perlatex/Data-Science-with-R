@@ -230,20 +230,6 @@ penguins %>%
 ```
 
 
-- 旋转数据框，让学科成为第一列，姓名成为其它列
-```{r}
-d <- tibble::tribble(
-    ~name, ~chinese, ~math, ~physics, ~english, ~music, ~sport,
-  "Alice",      88L,   63L,      98L,      89L,    85L,    72L,
-    "Bob",      85L,   75L,      85L,      82L,    73L,    83L,
-  "Carlo",      95L,   98L,      75L,      75L,    68L,    84L
-  )
-d
-```
-
-
-
-
 
 - 统计penguins各个体征的均值，然后变成长表格
 

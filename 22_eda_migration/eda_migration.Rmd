@@ -129,10 +129,10 @@ scales::show_col(mycolor)
 ```{r}
 combine_df %>%
   ggplot(aes(x = year, y = num)) +
-  geom_point(size = 4, color = "#3D81E0") +
+  geom_point(size = 4, fill = "#3D81E0", color = "#3D81E0", shape = 23) +
   geom_line(size = 2, color = "#3D81E0") +
   geom_line(aes(y = pred), size = 2, color = "#f4a261") +
-  geom_point(aes(y = pred), size = 4, color = "#f4a261") +
+  geom_point(aes(y = pred), size = 4, fill = "#f4a261", color = "#f4a261", shape = 23) +
   labs(
     title = "Figure2: Contribution of international migration to population growth",
     subtitle = "millions per year",
@@ -173,10 +173,10 @@ arrows <- tibble::tribble(
 
 combine_df %>%
   ggplot(aes(x = year, y = num)) +
-  geom_point(size = 4, color = "#3D81E0") +
+  geom_point(size = 4, fill = "#3D81E0", color = "#3D81E0", shape = 23) +
   geom_line(size = 2, color = "#3D81E0") +
   geom_line(aes(y = pred), size = 2, color = "#f4a261") +
-  geom_point(aes(y = pred), size = 4, color = "#f4a261") +
+  geom_point(aes(y = pred), size = 4, fill = "#f4a261", color = "#f4a261", shape = 23) +
   geom_ribbon(
     aes(ymin = num, ymax = pred),
     fill = "orange",
