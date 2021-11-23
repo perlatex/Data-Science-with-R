@@ -1,0 +1,100 @@
+---
+title: "吃华夫饼会导致离婚？"
+author: "王小二"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+
+## 数据
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggdag)
+
+d <- readr::read_csv("./demo_data/WaffleDivorce.csv")
+
+glimpse(d)
+```
+
+
+变量含义：
+
+- Location           所在地区
+- Population         人口数量
+- MedianAgeMarriage  当地结婚年龄的中位数
+- Marriage           结婚率
+- Marriage.SE        结婚率的标准误
+- Divorce            离婚率
+- Divorce.SE         离婚率的标准误
+- WaffleHouses       当地华夫饼屋的数量
+- South              是否为南方城市
+
+
+## 作业
+
+- 数据预处理，将`MedianAgeMarriage, Marriage, Divorce` 三个变量标准化
+
+
+- 人均饼屋数量与当地离婚率的是否存在关联？
+
+
+- 结婚导致离婚？看看结婚率和离婚率之间的关联。
+
+
+- 该地结婚年龄的中位数与离婚率的关系，模型能解释的通？
+
+
+- 以下是我猜测的三种可能，通过分析你觉得可能应该是哪个？
+
+```{r, fig.width=9, fig.height=1.75}
+dag_coords <- 
+  tibble(
+    name = c("A", "M", "D"),
+    x = c(1, 3, 2),
+    y = c(2, 2, 1)
+  )
+
+p1 <- dagify(
+  M ~ A,
+  D ~ A + M,
+  coords = dag_coords
+) %>% 
+  ggdag(node_size = 8) +
+  theme(panel.grid = element_blank())
+
+p2 <- dagify(
+  M ~ A,
+  D ~ A,
+  coords = dag_coords) %>%
+  ggdag(node_size = 8) +
+  theme(panel.grid = element_blank())
+
+p3 <- dagify(
+  D ~ A + M,
+  coords = dag_coords) %>%
+  ggdag(node_size = 8) +
+  theme(panel.grid = element_blank())
+
+library(patchwork)
+p1 + p2 + p3
+```
+
+
+1. 第一种模型，
+    - $A \rightarrow D$, 结婚年龄直接影响离婚率，可能年轻人变化快，容易与伴侣产生摩擦
+    - $A \rightarrow M \rightarrow D$, $A$ 间接影响$D$，结婚早，结婚率就高
+
+2. 第三种模型，$M$ 和 $D$ 之间的本无关联，只是同时受到 $A$ 的影响。
+
+3. 第三种模型，$A$ 和 $M$ 之间无关联，但同时影响 $D$。
+
+
+

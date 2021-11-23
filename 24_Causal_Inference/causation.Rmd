@@ -1,5 +1,6 @@
 ---
-title: "Correlation does not imply causation"
+title: "相关不等于因果"
+subtitle: "Correlation does not imply causation"
 author: "王小二"
 date: "`r Sys.Date()`"
 output: 
@@ -20,8 +21,6 @@ output:
 
 ```{r, warning = F, message = F }
 library(tidyverse)
-library(dagitty)
-library(ggdag)
 ```
 
 
@@ -39,8 +38,8 @@ library(ggdag)
 
 $$
 \begin{align}
-\text{sales} &= \beta_1\text{vists} + \beta_2\text{comp }+ \epsilon_1 \\
-\text{vists} &= \beta_3\text{mkt} + \epsilon_2\\
+\text{sales} &= \beta_1\text{visits} + \beta_2\text{comp }+ \epsilon_1 \\
+\text{visits} &= \beta_3\text{mkt} + \epsilon_2\\
 \text{mkt} &= \beta_4\text{comp} + \epsilon_3\\
 \text{comp} &= \epsilon_4
 \end{align}
@@ -49,25 +48,25 @@ $$
 指定的系数分别是 $\{\beta_1, \beta_2, \beta_3\, \beta_4\} = \{0.3, -0.9, 0.5, 0.6\}$ 
 
 
+
 模拟出来的数据大致是这个样子的
 
-```{r define model and simulate data, results = "asis"}
-g <- dagitty("dag {
-sales [outcome, pos=\"0,0\"]
-mkt [exposure, pos=\"2,0\"]
-comp [pos=\"1,1\"]
-visits [pos=\"1,0\"]
-visits -> sales [beta = 0.3]
-mkt -> visits [beta = 0.5]
-comp -> mkt [beta = 0.6]
-comp -> sales [beta = -0.9]
-}")
+```{r}
+beta1 <-  0.3
+beta2 <- -0.9
+beta3 <-  0.5
+beta4 <-  0.6
 
-sim_data <- simulateSEM(g, N = 10000) %>%
+sim_data <- tibble(
+  comp   = rnorm(10000, 0, 1),
+  mkt    = beta4 * comp + rnorm(10000, 0, 1),
+  visits = beta3 * mkt + rnorm(10000, 0, 1),
+  sales  = beta1 * visits + beta2 * comp + rnorm(10000, 0, 1)
+) %>%
   mutate(
-    sales = floor((sales - min(sales)) * 100), # make the numbers seem a bit more realistic
-    mkt = (mkt - min(mkt)) * 100,
-    comp = comp - min(comp),
+    sales  = floor((sales - min(sales)) * 100), # make the numbers seem a bit more realistic
+    mkt    = (mkt - min(mkt)) * 100,
+    comp   = comp - min(comp),
     visits = floor((visits - min(visits)) * 1000)
   ) %>%
   select(mkt, visits, sales, comp)
@@ -115,7 +114,7 @@ coef(model)
 
 结果和我们的预期(0.15)相差很大。负数意味着，增加市场营销，会降低销售。
 
-> 关联不等于因果，关联甚至给出与因果完全相反的结论
+> 相关不等于因果，相关甚至给出与因果完全相反的结论
 
 
 
@@ -145,31 +144,41 @@ OMG
 
 在激烈的市场竞争环境下，企业通常会增加营销支出。那么，**竞争**有可能是一个"confounding" 因子:
 
-- 竞争激烈，需要提升营销支出
-- 竞争激烈，也会导致销售下降
-
-
 ```{r, out.width = '80%', echo = FALSE}
 knitr::include_graphics("images/causation_inference_confounder.jpg")
 ```
 
-
+- 竞争激烈，需要提升营销支出
+- 竞争激烈，也会导致销售下降
 - 同时，市场营销会增加访问量，而这些访问量也会带来销售额的增加
-
-
 
 
 将以上三个信息汇总成一张**有向无环图** Directed Acyclic Graph (DAG)
 
+
 ```{r, fig.width = 5, fig.asp = 0.6}
-ggdag(tidy_dagitty(g)) + 
+library(ggdag)
+dag_coords <- 
+  tibble(
+    name = c("sales", "mkt", "comp", "visits"),
+    x = c(0, 2, 1, 1),
+    y = c(0, 0, 1, 0)
+  )
+
+dagify(
+  mkt ~ comp,
+  visits ~ mkt,
+  sales ~ comp + visits,
+  coords = dag_coords
+) %>% 
+  ggdag() +
   theme_dag_blank()
 ```
 
 因此，我们需要
 
-- 把**comp**作为 confounding 因子加入回归模型，
-- 模型中**visits**在某种程度上"blocks" or "absorbs"营销对销售的影响，因此我们应该将其从模型中删除。
+- 把**comp**作为 confounding 因子加入回归模型；
+- 模型中**visits**在某种程度上阻碍或者吸收营销对销售的影响，因此我们应该将其从模型中删除。
 
 
 
