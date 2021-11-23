@@ -40,4 +40,7 @@ example
 - 旋转数据框，即希望数据框的第一列是各科目，然后第二列到最后一列是学生姓名，A, B...F
 
 
+```{r, out.width = '100%', fig.align='left', echo = FALSE}
+knitr::include_graphics("images/wrangle.png")
+```
 
