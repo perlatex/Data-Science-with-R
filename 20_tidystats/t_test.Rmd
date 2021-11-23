@@ -17,7 +17,7 @@ output:
 本章需要的宏包，希望大家提前安装
 
 ```{r, eval=FALSE}
-install.packages(c("bayesplot", "palmerpenguins", "rstatix", "broom", "ggstatsplot", "infer"))
+install.packages(c("bayesplot", "palmerpenguins", "rstatix", "broom", "ggstatsplot", "infer", "ggthemes"))
 ```
 
 
@@ -357,6 +357,10 @@ penguins %>%
   )
 ```
 
+
+```{r, eval=FALSE}
+ggsave("beatiful.pdf", width = 8, height = 6)
+```
 
 
 

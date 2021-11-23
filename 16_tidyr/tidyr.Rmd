@@ -166,16 +166,56 @@ wide
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
+
 penguins <- read_csv("./demo_data/penguins.csv") 
 
-penguins %>% 
-  ggplot(aes(x = bill_length_mm)) +
-  geom_density(aes(fill = species), alpha = 0.2)  
+penguins
 ```
 
 - 画出企鹅**各体征变量**的密度分布
 
+```{r, message=FALSE, warning=FALSE}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm)) +
+  geom_density()  
 
+
+penguins %>% 
+  ggplot(aes(x = bill_depth_mm)) +
+  geom_density() 
+
+
+penguins %>% 
+  ggplot(aes(x = body_mass_g)) +
+  geom_density() 
+
+
+penguins %>% 
+  ggplot(aes(x = flipper_length_mm)) +
+  geom_density() 
+```
+
+
+以上的写法，比较累。体会**变成长表格的好处**
+
+
+```{r}
+penguins %>% 
+  select(species, bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g) %>% 
+  pivot_longer(
+    cols = -species,
+    names_to = "index",
+    values_to = "value"
+  ) %>% 
+  
+  ggplot(aes(x = value, color = index)) +
+  geom_density() +
+  facet_wrap(vars(index), scales = "free")
+  
+```
+
+
+每个体征指标下，再以不同的物种分组
 ```{r}
 penguins %>%
   select(species, bill_length_mm:body_mass_g) %>%
@@ -192,7 +232,7 @@ penguins %>%
 
 
 
-- 画山峦图也方便
+可以调整为山峦图，也方便
 
 
 ```{r}
@@ -213,20 +253,19 @@ penguins %>%
 
 - 用分面画出不同性别的各体征值的箱线图
 
-```{r}
+```{r, fig.width= 16, fig.height= 4}
 penguins %>%
   select(sex, bill_length_mm:body_mass_g) %>%
   pivot_longer(
-    cols = -sex,
-    names_to = "index",
+    cols      = -sex,
+    names_to  = "index",
     values_to = "value"
   ) %>%
   
-  ggplot(aes(y = value, x = sex, color = sex)) +
-
+  ggplot(aes(x = sex, y = value, color = sex)) +
   geom_boxplot() +
   geom_jitter() +
-  facet_wrap(vars(index), scales = "free")
+  facet_wrap(vars(index), ncol = 4, scales = "free")
 ```
 
 
