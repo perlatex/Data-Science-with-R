@@ -1,0 +1,132 @@
+---
+title: "Intro tidymodels"
+author: "王小二"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+
+Rstudio工厂的 Max Kuhn 大神正主持**机器学习**的开发，日臻成熟了，感觉很强大。
+
+## `tidymodels` 生态圈
+
+```{r, out.width = '100%', echo = FALSE}
+knitr::include_graphics(path = "images/simpletidymodels.png")
+```
+
+1) `rsamples` - 分隔数据（训练集、测试集和验证集)  
+2) `recipes` -  数据预处理
+3) `parsnip` -  模型拟合 
+4) `yardstick` and `tune` -  模型评估  
+5) `workflows` - 把 recipe 和 parsnip 纳入工作流
+6) `tune` and `dials` - 模型优化
+7) `broom` - 规整模型输出  
+
+```{r, out.width = '100%', echo = FALSE}
+knitr::include_graphics(path = "images/MachineLearning_tidymodels.png")
+```
+
+## 案例
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(tidymodels)
+
+penguins <- palmerpenguins::penguins %>%
+   janitor::clean_names() %>% 
+   tidyr::drop_na()
+
+penguins
+```
+
+
+
+### 数据分隔(Data Splitting)
+
+```{r, message=FALSE, warning=FALSE}
+split <- penguins %>% 
+  rsample::initial_split(prop = 3/4)
+
+training_data <- rsample::training(split)
+testing_data  <- rsample::testing(split)
+```
+
+
+在分割前应该先预处理**被预测变量**，比如标准化，但这里我为了偷懒，被预测变量`bill_length_mm`暂时保留**不变**。
+
+
+
+
+### 预处理**菜谱** (recipe)
+
+```{r}
+penguins_recipe  <- 
+  recipes::recipe(bill_length_mm ~ bill_depth_mm + sex, data = training_data) %>% 
+  recipes::step_normalize(all_numeric(), -all_outcomes()) %>% 
+  recipes::step_dummy(all_nominal())
+
+broom::tidy(penguins_recipe)
+```
+
+
+### 指定模型 (model)
+```{r}
+penguins_model <- 
+  parsnip::linear_reg() %>% 
+  parsnip::set_engine("lm") 
+  #parsnip::set_engine("stan") 
+```
+
+### 创建工作流(workflow)，加入**菜谱** 和**模型**
+```{r}
+wflow <- 
+  workflows::workflow() %>% 
+  workflows::add_recipe(penguins_recipe) %>% 
+  workflows::add_model(penguins_model)
+```
+
+### 模型拟合(fit)
+```{r}
+wflow_fit <- 
+  wflow %>% 
+  parsnip::fit(data = training_data)
+```
+
+
+### 模型预测(predict or augment)
+```{r}
+wflow_fit %>%
+  broom::augment(new_data = testing_data) %>%   
+  
+  ggplot(aes(x = bill_length_mm, y = .pred)) + 
+  geom_abline(linetype = 2) + 
+  geom_point(alpha = 0.5) + 
+  labs(y = "Predicted ", x = "bill_length_mm") 
+```
+
+
+### 模型评估(metrics)
+
+这里我们计算均方根误差（root mean squared error）
+
+```{r}
+wflow_fit %>%
+  broom::augment(new_data = testing_data) %>%  
+  yardstick::rmse(truth = bill_length_mm, estimate = .pred) 
+```
+
+
+
+## 参考
+
+- [tidymodels](https://recipes.tidymodels.org/reference/)
+- [Tidy Modeling with R](https://www.tmwr.org/)
+- [Tidyverse Skills for Data Science](https://jhudatascience.org/tidyversecourse/)

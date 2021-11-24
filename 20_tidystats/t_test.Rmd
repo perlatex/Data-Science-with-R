@@ -210,6 +210,19 @@ penguins %>%
   )
 ```
 
+### using `lm()`
+```{r}
+model <- lm(bill_length_mm ~ sex, data = penguins)
+broom::tidy(model)
+```
+
+```{r}
+confint(model)
+```
+可以看到，95%的置信区间与用`t.test()`的结果完全一样。
+
+
+
 
 ## 每个种类下男企鹅和女企鹅`bill_length_mm`的均值
 

@@ -22,9 +22,6 @@ output:
 knitr::include_graphics("images/Least_squares_as_springs.png")
 ```
 
-可参考[Least squares as springs](https://joshualoftus.com/posts/2020-11-23-least-squares-as-springs/)
-
-
 
 
 ## 回到案例
@@ -32,11 +29,8 @@ knitr::include_graphics("images/Least_squares_as_springs.png")
 ```{r message = FALSE, warning = FALSE}
 library(tidyverse)
 derby <- read_csv("./demo_data/derbyplus.csv")
-```
 
-
-```{r message = FALSE, warning = FALSE}
-glimpse(derby )
+glimpse(derby)
 ```
 
 
@@ -60,12 +54,12 @@ lm(speed ~ yearnew, data = tb)
 
 
 去掉截距，以下两者是等价的
-```{r lm-271, eval=FALSE}
+```{r, eval=FALSE}
 lm(speed ~ yearnew - 1, data = tb)
 lm(speed ~ 0 + yearnew, data = tb)
 ```
 
-不包含截距项，实际上就是强制通过原点(0, 0)，这样做很大程度上影响了斜率。
+不包含截距项，实际上就是强制通过原点`(0, 0)`，这样做很大程度上影响了斜率。
 
 
 ## 只有截距项
@@ -106,7 +100,7 @@ mod3 <- lm(speed ~ condition, data = tb)
 mod3
 ```
 
-tidyverse框架下，喜欢**数据框**的统计结果，因此，可用broom的`tidy()`函数将**模型输出**转换为数据框的形式
+为了让大家看的更清楚，用broom的`tidy()`函数将**模型输出**转换为数据框的形式
 
 ```{r}
 broom::tidy(mod3)
@@ -115,17 +109,20 @@ broom::tidy(mod3)
 
 我们看到输出结果，只有good、slow两个系数和Intercept截距，fast去哪里了呢？
 
-事实上，condition变量里有3组，回归时，选fast为**基线**，good的系数，可以理解为由fast**切换**到good，引起speed的变化（效应）
+事实上，condition变量里有3组，回归时，选fast为**基线**，那么good的系数可以理解为由fast**切换**到good，引起speed的变化（效应）
 
 -  对 fast 组的估计，`53.623`
 -  对 good 组的估计，`53.623 - 0.897 = 52.726`
 -  对 slow 组的估计，`53.623 - 1.934 = 51.689`
 
 
+**想想，为什么选择fast基线？能否用slow作为基线？**
+
+
 
 ## 因子变量
 
-默认是按照首字母顺序。但这里slow 组的估计最低，适合做基线。我们可以将condition转换为因子变量，这样方便调整因子先后顺序
+基线的选择，默认是按照首字母顺序，所以选择`fast`。但这里slow 组的估计最低，适合做基线。我们可以将condition转换为因子变量，这样方便调整因子先后顺序
 
 ```{r}
 tb_fct <- tb %>%
@@ -149,3 +146,9 @@ broom::tidy(mod4)
 -  对 fast 组的估计，`51.688 + 1.934 = 53.622`
 
 
+
+
+# 参考
+
+- [tidymodels](https://recipes.tidymodels.org/reference/)
+- [Least squares as springs](https://joshualoftus.com/posts/2020-11-23-least-squares-as-springs/)
