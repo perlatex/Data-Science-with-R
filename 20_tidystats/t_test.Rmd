@@ -200,15 +200,6 @@ pvalue
 ```
 
 
-如果觉得麻烦，你也可以
-```{r}
-penguins %>%
-  infer::t_test(
-    formula = bill_length_mm ~ sex,
-    order = c("male", "female"),
-    alternative = "two-sided"
-  )
-```
 
 ### using `lm()`
 ```{r}
@@ -261,7 +252,7 @@ library(rstatix)
 
 penguins %>%
   group_by(species) %>%
-  t_test(bill_length_mm ~ sex, var.equal = TRUE)
+  rstatix::t_test(bill_length_mm ~ sex, var.equal = TRUE)
 ```
 
 

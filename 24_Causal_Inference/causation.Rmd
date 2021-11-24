@@ -93,7 +93,8 @@ $$
 ```{r}
 sim_data %>% 
   ggplot(aes(mkt, sales)) + 
-  geom_point(alpha = 0.2) 
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "lm")
 ```
 
 很遗憾，通过图形我们看到两者的关系是负相关，和我们的预期完全相反。

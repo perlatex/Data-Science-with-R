@@ -42,15 +42,47 @@ glimpse(d)
 
 - 数据预处理，将`MedianAgeMarriage, Marriage, Divorce` 三个变量标准化
 
+```{r}
+df <- d %>% 
+  mutate(
+    across(c(MedianAgeMarriage, Marriage, Divorce), ~ (.x - mean(.x)) /sd(.x))
+  ) %>% 
+  select(Location, Population, MedianAgeMarriage, Marriage, Divorce, WaffleHouses) %>% 
+  janitor::clean_names() 
+df
+```
 
 - 人均饼屋数量与当地离婚率的是否存在关联？
 
+```{r}
+df %>% 
+  mutate(prop = waffle_houses / population) %>% 
+  
+  ggplot(aes(x = prop, y = divorce)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+```
 
 - 结婚导致离婚？看看结婚率和离婚率之间的关联。
 
+```{r}
+df %>% 
+  ggplot(aes(x = marriage, y = divorce)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+```
 
 - 该地结婚年龄的中位数与离婚率的关系，模型能解释的通？
 
+```{r}
+df %>% 
+  ggplot(aes(x = median_age_marriage, y = divorce)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+```
 
 - 以下是我猜测的三种可能，通过分析你觉得可能应该是哪个？
 
