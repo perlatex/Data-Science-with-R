@@ -72,21 +72,58 @@ glimpse(music)
 
 1. 检查数据框是否有缺失值`NA`
 
+```{r}
+music %>% 
+  map(is.na) %>% 
+  map_dfr(sum)
+```
+或者
+```{r}
+music %>% 
+  summarise(
+    across(everything(), ~sum(is.na(.x)))
+  )
+```
 
 2. 统计年龄的均值和方差
-
+```{r}
+music %>% 
+  summarise(
+    across(age, list(mean, sd))
+  )
+```
 
 3. 统计各种表演类型所占的比例
-
+```{r}
+music %>% 
+  count(perform_type) %>% 
+  mutate(
+    prop = n / sum(n)
+  )
+```
 
 4. 每个人写了多少日记？日记最少的是哪个人？
-
+```{r}
+music %>% count(id, sort = TRUE)
+```
 
 5. 消极情绪（变量`na`）是我们关注的焦点，请用直方图画出消极情绪的分布
-
+```{r}
+music %>%
+  ggplot(aes(x = na)) +
+  geom_histogram(binwidth = 2, color = "white") +
+  xlim(10, 35) +
+  xlab("Negative Affect") +
+  ylab("Frequency") 
+```
 
 6. 表演次数增多，对减少焦虑有帮助？建议按表演者分面，画出表演次数与消极情绪(变量`na`)散点图
-
+```{r}
+music %>%
+  ggplot(aes(x = diary, y = na)) +
+  geom_point() +
+  facet_wrap(vars(id))
+```
 
 7. 数据规整（代码已写出，希望大家看懂）
 
@@ -120,22 +157,56 @@ music_lev2
 
 
 8. 根据`music_lev2`，画出平均消极情绪的直方图分布（利用上一题的结果`music_lev2`，以下均是）
-
+```{r}
+music_lev2 %>%
+  ggplot(aes(x = meanbysubj)) +
+  geom_histogram(binwidth = 2, color = "white") +
+  xlab("Mean Negative Affect") +
+  ylab("Frequency") 
+```
 
 9. 画出不同性别表演者平均消极情绪的箱线图和抖散图
 
+```{r}
+music_lev2 %>%
+  ggplot(aes(x = gender, y = meanbysubj)) +
+  geom_boxplot() +
+  geom_jitter() +
+  ylab("Mean Negative Affect") +
+  xlab("")
+```
 
 10. 不同性别表演者的平均消极情绪，是否存在显著差异
 
+```{r}
+music_lev2 %>%
+  t.test(meanbysubj ~ gender, data = .)
+```
 
 11. 负性情绪越严重的人，越容易出现表演焦虑？
-
+```{r}
+music_lev2 %>%
+  ggplot(aes(x = mpqnem, y = meanbysubj)) +
+  geom_point() +
+  geom_smooth(method = "lm") 
+```
 
 12. 对压力的反应越平静的人，越不会出现表演焦虑？
 
+```{r}
+music_lev2 %>%
+  ggplot(aes(x = mpqsr, y = meanbysubj)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
 
 13. 研究乐器时间越长，越不会出现表演焦虑？
-
+```{r}
+music_lev2 %>%
+  ggplot(aes(x = years_study, y = meanbysubj)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
 
 14. 建模
 
@@ -150,6 +221,13 @@ tb
 
 - 画出**平均消极情绪**随**负性情绪**的变化图，要求不同的`orch`用不同的颜色
 
+```{r}
+tb %>% 
+  mutate(orch = as.factor(orch)) %>% 
+  ggplot(aes(x = mpqnem_c, y = meanbysubj, colour = orch)) +
+  geom_point(aes(shape = orch)) +
+  geom_smooth(aes(linetype = orch), method = "lm", se = FALSE)
+```
 
 - 根据如下公式，建立线性模型，并解释模型输出。
 
@@ -158,4 +236,24 @@ $$
 \text{meanbysubj}_{i}=& \beta_{0}+\beta_{1}\textrm{mpqnem_c}_{i}+\beta_{2}\textrm{orch}_{i} \; +\\
       &{}\beta_{3}\textrm{mpqnem_c}_{i}\times\textrm{orch}_{i}+\epsilon_{i}\quad \textrm{where}\quad \epsilon_{i}\sim \textrm{N}(0,\sigma^2)
 \end{split}
+$$
+```{r}
+mod <- lm(meanbysubj ~ 1 + mpqnem_c + orch + mpqnem_c:orch, data = tb) 
+broom::tidy(mod)
+```
+
+$$
+\text{meanbysubj}_{i}=16.13+0.17\textrm{mpqnem_c}_{i}+0.525\textrm{orch}_{i}-0.083\textrm{mpqnem_c}_{i}\times\textrm{orch}_{i}
+$$
+
+
+分开来看
+
+$$
+\begin{align*}
+ \textrm{orch}=0: & \\
+&\text{meanbysubj}_{i}=16.13+0.17\textrm{mpqnem_c}_{i}\\
+ \textrm{orch}=1: & \\
+&\text{meanbysubj}_{i} = (16.13+0.525)+(0.17-0.083)\textrm{mpqnem_c}_{i}
+ \end{align*}
 $$
