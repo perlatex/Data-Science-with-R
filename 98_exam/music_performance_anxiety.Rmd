@@ -1,0 +1,161 @@
+---
+title: "Music Performance Anxiety"
+author: "王小二"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+
+# 考试要求
+
+- 大家将渲染出来的html文件（以姓名命名），发送到学习委员。
+- 学习委员在12月5日18:00之前提交。
+- 超过时间，视为缺考。
+- 独立完成，不可抄袭。
+
+
+
+# 考试内容
+
+## 背景
+
+> Sadler ME, Miller CJ. Performance Anxiety: A Longitudinal Study of the Roles of Personality and Experience in Musicians. _Social Psychological and Personality Science_. 2010;1(3):280-287. doi:10.1177/1948550610370492
+
+
+怯场对表演者来说是一个严重的问题，了解表演焦虑的人格基础是决定如何将其影响降至最低的重要步骤。[@Miller2010]研究了音乐家在演出前的情绪状态以及可能影响他们情绪状态的因素。数据是通过让37名音乐专业本科生在一学年的演出前填写日记收集的。研究参与者在每次表演前都完成了积极影响-消极影响计划（Positive Affect Negative Affect Schedule (PANAS)）。PANAS工具提供了两个关键的结果测量：消极情绪（焦虑的状态测量）和积极情绪（幸福的状态测量）。我们将把**消极情绪**作为衡量表演焦虑的主要反应。
+
+
+可能与表演焦虑存在潜在关系的因素包括：表演类型（独奏、大型合奏或小型合奏）；听众（导师、公众、学生或评审专家）；这首曲子是否凭记忆演奏的；年龄；性别；乐器（语音、管弦乐或键盘）；研究这个乐器的时间。此外，还通过多维人格问卷（MPQ）评估了研究参与者的性格基线。MPQ提供了一个低阶因素（吸收）和三个高阶因素的分数：积极情绪（PEM——幸福感、社会效能、成就感和社会亲密度的组合）；消极情绪（NEM——压力反应、疏离感和攻击性的组合）；约束（CON——控制、避免伤害和传统主义的组合）。
+
+
+  
+
+## 数据
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+music <- read_rds("./demo_data/musicdata.rds")
+
+glimpse(music)
+```
+
+
+- `id`          = 身份编码
+- `diary`       = 音乐表演者填写的日记累计总数
+- `previous`    = 以前有日记记录的演出次数
+- `perf_type`   = 表演类型 (Solo独奏, Large Ensemble大型合奏, Small Ensemble小型合奏)
+- `memory`      = 记忆（Memory凭记忆, using Score乐谱, Unspecified未指明)
+- `audience`    = 观众 (Instructor指导老师, Public公众, Students学生, Juried评审专家)
+- `pa`          = 积极情绪**positive affect**
+- `na`          = 消极情绪**negative affect** （作为衡量表演焦虑的主要变量）
+- `age`         = 年龄
+- `gender`      = 性别
+- `instrument`  = 乐器（Voice语音, Orchestral管弦乐, or Piano键盘）
+- `years_study` = 研究乐器的时间
+- `mpqab`       = 多维人格问卷（MPQ）给出的**吸收得分**
+- `mpqsr`       = 多维人格问卷（MPQ）给出的**压力反应**（值越大，说明对压力的过激反应越大）
+- `mpqpem`      = 多维人格问卷（MPQ）给出的**正性情绪**
+- `mpqnem`      = 多维人格问卷（MPQ）给出的**负性情绪**
+- `mpqcon`      = 多维人格问卷（MPQ）给出的**约束能力**
+
+
+
+## 题目
+
+1. 检查数据框是否有缺失值`NA`
+
+
+2. 统计年龄的均值和方差
+
+
+3. 统计各种表演类型所占的比例
+
+
+3. 每个人写了多少日记？日记最少的是哪个人？
+
+
+4. 消极情绪（变量`na`）是我们关注的焦点，请用直方图画出消极情绪的分布
+
+
+5. 表演次数增多，对减少焦虑有帮助？建议按表演者分面，画出表演次数与消极情绪(变量`na`)散点图
+
+
+6. 数据规整（代码已写出，希望大家看懂）
+
+- 第一步，计算每位表演者的平均消极情绪分数, 保存数据框为`meanbysubj`
+```{r}
+meanbysubj <- music %>%
+  group_by(id) %>%
+  summarise(
+    meanbysubj = mean(na, na.rm = TRUE)
+  )
+```
+
+- 第二步，筛选每个表演者记录的第一行，然后选择(`id, gender, instrument, years_study, mpqab, mpqsr, mpqpem, mpqnem`)列，保存为`mpq_data`
+
+```{r}
+mpq_data <- music %>%
+  group_by(id) %>%
+  slice_head() %>%
+  select(id, gender:mpqnem) %>%
+  ungroup()
+```
+
+- 第三步，按照`id`，合并`mpq_data`和`meanbysubj`, 构成新的数据框 `music_lev2`
+
+```{r}
+music_lev2 <- mpq_data %>%
+  left_join(meanbysubj, by = "id")
+
+music_lev2
+```
+
+
+7. 根据`music_lev2`，画出平均消极情绪的直方图分布（利用上一题的结果`music_lev2`，以下均是）
+
+
+8. 画出不同性别表演者平均消极情绪的箱线图和抖散图
+
+
+9. 不同性别表演者的平均消极情绪，是否存在显著差异
+
+
+10. 负性情绪越严重的人，越容易出现表演焦虑？
+
+
+11. 对压力的反应越平静的人，越不会出现表演焦虑？
+
+
+12. 研究乐器时间越长，越不会出现表演焦虑？
+
+
+13. 建模
+
+- 首先构建新变量`orch`，然后中心化负性情绪`mpqnem` （代码如下）
+```{r}
+tb <- music_lev2 %>%
+  mutate(orch = if_else(instrument == "orchestral instrument", 1, 0)) %>%
+  mutate(mpqnem_c = mpqnem - mean(mpqnem))
+
+tb
+```
+
+- 画出**平均消极情绪**随**负性情绪**的变化图，要求不同的`orch`用不同的颜色
+
+
+- 根据如下公式，建立线性模型，并解释模型输出。
+
+$$
+\begin{split}
+\text{meanbysubj}_{i}=& \beta_{0}+\beta_{1}\textrm{mpqnem_c}_{i}+\beta_{2}\textrm{orch}_{i} \; +\\
+      &{}\beta_{3}\textrm{mpqnem_c}_{i}\times\textrm{orch}_{i}+\epsilon_{i}\quad \textrm{where}\quad \epsilon_{i}\sim \textrm{N}(0,\sigma^2)
+\end{split}
+$$
