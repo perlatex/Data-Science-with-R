@@ -1,6 +1,5 @@
 ---
 title: "贝叶斯线性回归"
-subtitle: "企鹅的故事"
 author: "王小二"
 date: "`r Sys.Date()`"
 output: 
@@ -113,9 +112,8 @@ coef + c(-1,1)*err*qt(0.975,  nrow(icecream) - 2)
 把这**四个前提**画在一张图中
 
 ```{r, out.width = '80%', fig.align='center', echo = FALSE}
-knitr::include_graphics(here::here("images", "LINE.png"))
+knitr::include_graphics("./images/LINE.png")
 ```
-
 
 
 
@@ -152,6 +150,12 @@ y_n &\sim \operatorname{normal}(\mu_n, \,\, \sigma)\\
 $$
 
 ## stan 代码
+
+```{r, out.width = '80%', fig.align = 'center', echo = FALSE}
+knitr::include_graphics("./images/from_model_to_code.png")
+```
+
+
 
 ```{r, warning=FALSE, message=FALSE}
 stan_program <- "
@@ -219,7 +223,7 @@ fit_normal
 post_samples <- rstan::extract(fit_normal)
 ```
 
-`post_samples`是一个列表，每个元素对应一个系数，每个元素都有4000个样本，我们可以用ggplot画出每个系数的后验分布
+`post_samples`是一个列表，每个元素对应一个系数，每个元素都有4000个样本，我们可以用ggplot2画出每个系数的后验分布
 
 ```{r}
 tibble(x = post_samples[["beta"]] ) %>% 
@@ -259,15 +263,15 @@ fit_normal %>%
   
   ggplot(aes(beta, color = "posterior")) + 
   geom_density(size = 1) + 
-  
-  stat_function(fun = dnorm, 
-        args = list(mean = 0, 
-                    sd = 10), 
-        aes(colour = 'prior'), size = 1) +
+  stat_function(
+    fun = dnorm, 
+    args = list(mean = 0, sd = 10), 
+    aes(colour = 'prior'), size = 1) +
   xlim(-30, 30) +
-  scale_color_manual(name = "", 
-                     values = c("prior" = "red", "posterior" = "black")
-                     ) + 
+  scale_color_manual(
+    name = "", 
+    values = c("prior" = "red", "posterior" = "black")
+  ) + 
   ggtitle("系数beta的先验和后验概率分布") + 
   xlab("beta")
   
@@ -275,11 +279,7 @@ fit_normal %>%
 
 
 
-## 小结
 
-```{r, out.width = '80%', fig.align = 'center', echo = FALSE}
-knitr::include_graphics(here::here("images", "from_model_to_code.jpg"))
-```
 
 ## 作业与思考
 
@@ -292,42 +292,11 @@ alpha  ~ normal(100, 5);
 beta   ~ normal(20, 5);
 ```
 
-- 修改stan代码，尝试推断上一章的身高分布
-```{r, eval=FALSE}
-d <- readr::read_rds(here::here('demo_data', "height_weight.rds")) 
-```
 
+## References
 
-```{r, eval=FALSE}
-stan_program <- "
-data {
-  int N;
-  vector[N] y;
-}
-parameters {
-  real mu;
-  real<lower=0> sigma;
-}
+- Gelman, Andrew, John B. Carlin, Hal S. Stern, David B. Dunson, Aki Vehtari, and Donald B. Rubin. 2013. _Bayesian Data Analysis_, Third Edition. Boca Raton: Chapman; Hall/CRC.
 
-model {
-  mu ~ normal(168, 20);
-  sigma ~ uniform(0, 50);
-  
-  y ~ normal(mu, sigma);
-}
+- Kruschke, John K. 2014. _Doing Bayesian Data Analysis: A Tutorial Introduction with R_. 2nd Edition. Burlington, MA: Academic Press.
 
-"
-
-stan_data <- list(
-  N = nrow(d),
-  y = d$height
-)
-
-fit <- stan(model_code = stan_program, data = stan_data,
-            iter = 31000, 
-            warmup = 30000, 
-            chains = 4, 
-            cores = 4
-            )
-```
-
+- McElreath, Richard. 2020. _Statistical Rethinking: A Bayesian Course with Examples in R and Stan_. 2nd ed. CRC Texts in Statistical Science. Boca Raton: Taylor; Francis, CRC Press.

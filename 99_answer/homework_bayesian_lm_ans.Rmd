@@ -14,13 +14,7 @@ output:
 
 
 
-# 配置 
-
-按照 <https://bookdown.org/wangminjie/R4DS/bayesian-intro-stan.html> 配置Stan
-
-
-
-## 测试 
+## 作业
 
 ```{r message = FALSE, warning = FALSE}
 library(tidyverse)
@@ -39,17 +33,13 @@ derby <- read_csv("./demo_data/derbyplus.csv") %>%
 derby 
 ```
 
-
-
-获胜速度是否有线性趋势？
-
 ```{r, fig.asp=0.618, fig.width= 6}
 derby %>% 
-  ggplot(aes(x = year, y = speed)) +
+  ggplot(aes(x = yearnew, y = speed)) +
   geom_point() 
 ```
 
-
+获胜速度是否有线性趋势？请模仿`icecream`的代码，写出贝叶斯线性模型的stan代码。
 
 
 

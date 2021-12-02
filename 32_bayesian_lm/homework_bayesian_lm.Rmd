@@ -1,0 +1,38 @@
+---
+title: "Introduction to Stan"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+    code_download: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+
+
+## 作业
+
+这是一份肯塔基州赛马的数据集。
+
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+derby <- read_csv("./demo_data/derbyplus.csv") %>% 
+  mutate(yearnew = year - 1896)
+derby 
+```
+
+
+
+```{r, fig.asp=0.618, fig.width= 6}
+derby %>% 
+  ggplot(aes(x = yearnew, y = speed)) +
+  geom_point() 
+```
+
+获胜速度是否有线性趋势？请模仿`icecream`的代码，写出贝叶斯线性模型的stan代码。
+
+
