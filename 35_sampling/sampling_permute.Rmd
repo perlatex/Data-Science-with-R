@@ -50,7 +50,7 @@ penguins %>%
 ## 抽样
 
 ```{r, out.width = '100%', fig.align='center', echo = FALSE}
-knitr::include_graphics("images/Resampling.jpg")
+knitr::include_graphics("images/permute.jpg")
 ```
 
 - 解释变量x列不动
