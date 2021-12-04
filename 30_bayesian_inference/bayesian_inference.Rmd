@@ -69,7 +69,7 @@ p(\theta \vert Y) \propto p(\theta) \prod^N_{n=1} p(y_n \vert \theta)
 $$
 
 
-为了方便计算，我们两边取对数，连乘变成了连加。也就说，我们计算的log probabilities
+为了方便计算，我们两边取对数，连乘变成了连加。也就说，我们计算的log probabilities (`lp`)
 
 
 $$

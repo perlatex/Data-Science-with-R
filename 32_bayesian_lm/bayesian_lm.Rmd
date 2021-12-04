@@ -223,7 +223,7 @@ fit_normal
 post_samples <- rstan::extract(fit_normal)
 ```
 
-`post_samples`是一个列表，每个元素对应一个系数，每个元素都有4000个样本，我们可以用ggplot2画出每个系数的后验分布
+`post_samples`是一个列表，每个元素对应一个系数，每个系数有4000个样本，我们可以用ggplot2画出每个系数的后验分布
 
 ```{r}
 tibble(x = post_samples[["beta"]] ) %>% 
