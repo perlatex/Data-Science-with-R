@@ -246,8 +246,14 @@ $$
 \text{meanbysubj}_{i}=16.13+0.17\textrm{mpqnem_c}_{i}+0.525\textrm{orch}_{i}-0.083\textrm{mpqnem_c}_{i}\times\textrm{orch}_{i}
 $$
 
+或者偷懒
+```{r}
+library(equatiomatic)
+extract_eq(mod, use_coefs = TRUE)
+```
 
-分开来看
+
+为了方便理解，我们分开来看
 
 $$
 \begin{align*}
@@ -257,3 +263,10 @@ $$
 &\text{meanbysubj}_{i} = (16.13+0.525)+(0.17-0.083)\textrm{mpqnem_c}_{i}
  \end{align*}
 $$
+
+
+关于模型的解释，可以参考这里
+```{r}
+library(report)
+report(mod)
+```
