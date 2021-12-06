@@ -115,6 +115,43 @@ penguins %>% select(species, starts_with("bill_"))
 ```
 
 
+## 选择全部为0的列
+```{r}
+tb <- tibble(
+  x = 1:5,
+  y = 0,
+  z = 5:1,
+  w = 0
+)
+tb
+
+myfun <- function(x) sum(x) == 0
+tb %>%
+  select(where(myfun))
+
+# or
+tb %>%
+  select(where(~sum(.x) == 0))
+```
+
+**课堂练习**：剔除全部为NA的列
+```{r}
+df <- tibble(
+  x = c(NA, NA, NA),
+  y = c(2, 3, NA),
+  z = c(NA, 5, NA)
+)
+
+
+df %>%
+  select(where(~ !all(is.na(.x))))
+
+# or
+df %>%
+  filter(
+    if_any(everything(), ~ !is.na(.x))
+  )
+```
 
 ## 寻找男企鹅
 

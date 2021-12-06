@@ -375,8 +375,13 @@ $$
  \hat{Y}_{i}=50.53+0.031\textrm{Yearnew}_{i}+1.83\textrm{Fast}_{i}-0.011\textrm{Yearnew}_{i}\times\textrm{Fast}_{i}.
 $$
 
+不想自己写公式，可以偷懒
+```{r}
+library(equatiomatic)
+extract_eq(mod5, use_coefs = TRUE)
+```
 
-分开来看
+为了方便理解，我们分开来看
 
 $$
 \begin{align*}
@@ -390,7 +395,12 @@ $$
 
 两条拟合直线，不同的截距和不同的斜率。不同赛道，不同的起始速度、不同的速度增速。
 
+关于模型结果的解释，可以参考这里
 
+```{r}
+library(report)
+report(mod5)
+```
 
 
 ## 更复杂的模型
