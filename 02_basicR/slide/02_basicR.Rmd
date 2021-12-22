@@ -55,10 +55,18 @@ knitr::include_graphics("images/objects_box.png")
 \centering{可以装数据、装函数。}
 
 ## 对象的创建
-**对象的创建与使用**。首先确定一个对象名，然后使用赋值操作符 `<-`，(在Rstudio中同时按下`alt` 和 `-`，就可以产生赋值箭头)，将数据赋值给它。
+**对象的创建与使用**。首先确定一个对象名，然后使用赋值操作符 `<-`，将数据赋值给它。
 
 ```{r, out.width = "85%", echo=FALSE}
 knitr::include_graphics("images/rsyntax1.png")
+```
+
+## 赋值符号
+
+在Rstudio中同时按下 `Alt` 和 `-`，就可以产生赋值箭头
+
+```{r, out.width = "99%", echo=FALSE}
+knitr::include_graphics("images/keyboard_assignment.png")
 ```
 
 ## 对象的创建与使用
